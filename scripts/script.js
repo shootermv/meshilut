@@ -1,5 +1,7 @@
 async function createCommit() {
     try {
+        //  TODO: Use ssh key for meshilut repo only
+        //        Delete this token!!!
         const token = '80c23f7254088a09c86baa715667907b15c0a7e9';
         const github = new Octokat({ 'token': token });
         
