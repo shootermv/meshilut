@@ -27,7 +27,7 @@
   #sidebar a {
     color:#fff;
   }
-  #content {
+  #mainArea {
     margin-right: 290px;
     width: calc( 100% - 350px );
   }

@@ -1,3 +1,4 @@
+var dataStore;
 class Post extends React.Component {
   constructor(props) {
     super(props); 
@@ -6,9 +7,10 @@ class Post extends React.Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
-  handleSubmit(event) {
-    alert('A name was submitted: ' + this.state.title);
+  handleSubmit(event) {    
     event.preventDefault();
+    dataStore.posts.push( this.state );
+    updateData();
   }
 
   handleChange(event) {
@@ -27,90 +29,117 @@ class Post extends React.Component {
   }
 }
 
-React.render(
-  <Post/>,
-  document.getElementById('content')
-);
+class PostsList extends React.Component { 
+  render() {
+    return (
+      <div>
+        <h1>פוסטים</h1>
+        <table>
+          <tr>
+            <th>כותרת</th>
+          </tr>
+          { dataStore.posts.map((post) => {     
+            return (<tr>
+              <td>{post}</td>
+            </tr>) 
+          })}        
+        </table>
+      </div>
+    )
+  }
+}
 
+
+class message extends React.Component {
+}
+
+window.onload = function(e){ 
+  fetch('data.json').then(function(res){
+    try {
+      if (res.ok) {
+        res.json().then(function(jsonResponse){
+          dataStore = jsonResponse;
+          routeToCall(window.location.hash);
+        });
+      } else {
+        throw new Error(res)
+      }
+    }
+    catch (err) {
+      console.log(err.message)
+    }
+  });
+}
+
+
+window.onhashchange = function(){
+  if ( dataStore ) {
+    routeToCall(window.location.hash);
+  }
+};
 
 /**
  * Simplest router...
- *
+ **/
 function routeToCall(hash){
-  var elem = document.createElement('div');
   switch(hash) {
     case '#posts':
-      ['2','3','4'].forEach(function(i){
-        var span = document.createElement('span');
-        span.innerHTML = i;
-        elem.appendChild(span);
-      })
+      React.render(
+        <PostsList/>,
+        document.getElementById('content')
+      );
     break;
     case '#newPost':
-      var post = new Post();
-      elem.appendChild(post.formElement);
+      React.render(
+        <Post/>,
+        document.getElementById('content')
+      );
     break;
   }
-  document.getElementById('content').innerHTML = '';
-  document.getElementById('content').appendChild(elem);
+  
 }
 
-class Post {
-  constructor() { 
-    this.formElement = document.createElement("form");
-    this.formElement.id = 'postForm';
-    
-    var idDiv = document.createElement("div");
-    var idLabel = document.createElement("span");
-    idLabel.innerText = "מזהה: ";
-    var idVal = document.createElement("span");
-    idVal .innerText = '';
-    
-    var bodyDiv = document.createElement("div");
-    var bodyLabel = document.createElement("label");
-    bodyLabel.innerText = "תוכן";
-    var bodyInput = document.createElement("textarea");
+//  TODO: Use ssh key for meshilut repo only
+//        Delete this token!!!
+const token = 'e36bcb738e1acab2a1114c2b391a734bb6db4c35';
 
-    var nameDiv = document.createElement("div");
-    var nameLabel = document.createElement("label");
-    nameLabel.innerText = "כותרת";
-    var nameInput = document.createElement("input");
-    nameInput.setAttribute("placeholder", 'הכנס את כותרת הפוסט');
+async function updateData() {
+  const github = new Octokat({ 'token': token }); 
+  let repo = await github.repos('arielberg', 'meshilut').fetch();
+  let main = await repo.git.refs('heads/master').fetch();
+  let treeItems = [];
 
-    var bodyDiv = document.createElement("div");
-    var bodyLabel = document.createElement("label");
-    bodyLabel.innerText = "תוכן";
-    var bodyInput = document.createElement("textarea");
-    bodyInput.setAttribute("placeholder", 'הכנס את תוכן הפוסט');
 
-    this.formElement.appendChild(idDiv);
-    idDiv.appendChild(idLabel);
-    idDiv.appendChild(idVal);
+  let markdownFile = await repo.git.blobs.create({
+      "content": JSON.stringify(dataStore),
+      "encoding": "utf-8"
+  });
 
-    this.formElement.appendChild(nameDiv);
-    nameDiv.appendChild(nameLabel);
-    nameDiv.appendChild(nameInput);
+  treeItems.push({
+    path: 'data.json',   
+    sha: markdownFile.sha,
+    mode: "100644",
+    type: "blob"
+  });
 
-    this.formElement.appendChild(bodyDiv);
-    bodyDiv.appendChild(bodyLabel);
-    bodyDiv.appendChild(bodyInput);
+  let tree = await repo.git.trees.create({
+    tree: treeItems,
+    base_tree: main.object.sha
+  });
 
-    var submitButton = document.createElement("button");
-    submitButton.innerText = 'שמור';
-    submitButton.onclick = function(){
-      alert(this.title);
-    }
-    bodyDiv.appendChild(submitButton);
-  }
-  constructor(postId) { 
-  }
+  let commit = await repo.git.commits.create({
+    message: `Created via Web 1`,
+    tree: tree.sha,
+    parents: [main.object.sha]});
+
+  main.update({sha: commit.sha})
+
+  console.log('Posted');
 }
 
 async function createCommit() {
   try {
-      //  TODO: Use ssh key for meshilut repo only
-      //        Delete this token!!!
-      const token = '80c23f7254088a09c86baa715667907b15c0a7e9';
+  
       const github = new Octokat({ 'token': token });
       
       let repo = await github.repos('arielberg', 'meshilut').fetch();
@@ -146,9 +175,6 @@ async function createCommit() {
 
   
   } catch (err) {
-      debugger;
       console.error(err);
-      console.log(err);
   }
 }
-*/
