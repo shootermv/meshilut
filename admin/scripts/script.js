@@ -1,24 +1,49 @@
 var dataStore;
 var messages = [];
-const token = '';
+var token = '';
 
 class LoginComponent extends React.Component {
   constructor(props) {
     super(props); 
     this.state = {name: '', token: ''};
+    if (  localStorage.getItem('token' ) && localStorage.getItem('data' ) ) {
+      dataStore = JSON.parse(localStorage.getItem('data' ));
+      token = localStorage.getItem('token' );
+      console.log('OUTPUT : ',token);
+      console.log('O',dataStore);
+      document.getElementById('pageWrapper').classList.remove('hideLeftBar');
+      window.location = '#posts';
+    }
   }
 
   handleSubmit(event) {    
     event.preventDefault();
-    var name = event.target.elements.name.value;
-    token = event.target.elements.token.value;
-    localStorage.setItem('token', token );
-    location.hash = '#post';
+    var token = event.target.elements.token.value;
+    fetch('../data.json').then(function(res){
+      try {
+        if (res.ok) {
+          res.json().then(function(jsonResponse){
+            dataStore =  jsonResponse;
+            localStorage.setItem('token', token );
+            localStorage.setItem('data', JSON.stringify(dataStore));
+            routeToCall('#posts');
+            document.getElementById('pageWrapper').classList.remove('hideLeftBar');
+          });
+        } else { 
+          throw new Error(res)
+        }
+      }
+      catch (err) {
+        console.log(err.message)
+      }
+    });
+   
   }
 
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
+        <h3>התנועה למשילות - כניסה לממשק ניהול</h3>
         <div><label>שם:</label><input name="name" type="text" placeholder="שם משתמש" /></div>
         <div><label>סיסמא:</label><textarea name="token" placeholder="סיסמא" /></div>
         <input type="submit" value="היכנס" />
@@ -93,23 +118,6 @@ window.onload = function(e){
     <LoginComponent/>,
     document.getElementById('content')
   );
-  /*
-  fetch('../data.json').then(function(res){
-    try {
-      if (res.ok) {
-        res.json().then(function(jsonResponse){
-          dataStore =  jsonResponse;
-          routeToCall(window.location.hash);
-        });
-      } else { 
-        throw new Error(res)
-      }
-    }
-    catch (err) {
-      console.log(err.message)
-    }
-  });
-  */
 }
 
 
@@ -124,15 +132,21 @@ window.onhashchange = function(){
  **/
 function routeToCall(hash){
   switch(hash) {
-    case '#posts':
-      React.render(
-        <PostsList/>,
-        document.getElementById('content')
-      );
-    break;
     case '#newPost':
       React.render(
         <Post/>,
+        document.getElementById('content')
+      );
+    break;
+    case '#logout':
+      localStorage.removeItem('token');
+      localStorage.removeItem('data');
+      location = '';
+    break;
+    case '#posts':
+    default:
+      React.render(
+        <PostsList/>,
         document.getElementById('content')
       );
     break;
