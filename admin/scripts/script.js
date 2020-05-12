@@ -18,7 +18,7 @@ class LoginComponent extends React.Component {
 
   handleSubmit(event) {    
     event.preventDefault();
-    var token = event.target.elements.token.value;
+    token = event.target.elements.token.value;
     fetch('../data.json').then(function(res){
       try {
         if (res.ok) {
