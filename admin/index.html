@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>התנועה למשילות - ניהול האתר</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" ></link>
+    <link rel="stylesheet" href="style.css" ></link>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+    <script src="scripts/octokat.js"></script>
+    <script src="scripts/script.js" type="text/jsx"></script>
+</head> 
+<body dir="rtl">
+  <div class="wrapper">
+   <!-- Sidebar -->
+   <nav id="sidebar">
+    <div class="sidebar-header">
+        <h3><a class="navbar-brand" href="#">התנועה למשילות - ניהול האתר</a></h3>
+    </div>
+
+    <ul class="list-unstyled components">
+        <li style="margin-top:50px"><h3>פוסטים</h3></li>
+        <li>
+          <a class="nav-link" href="#posts">עריכת פוסטים</a>
+        </li>
+        <li>
+          <a class="nav-link" href="#newPost">הוסף פוסט חדש</a>
+        </li>
+        <li style="margin-top:50px"><h3>איזכורים חדשותיים</h3></li>
+        <li>
+          <a class="nav-link" href="#newItems">ניהול איזכורים</a>
+        </li>
+        <li>
+          <a class="nav-link" href="#newNewsItem">הוסף איזכור</a>
+        </li>
+    </ul>
+  </nav>
+  <!-- Page Content -->
+  <div id="mainArea">
+    <div id='messages'>
+    </div>
+    <div id="content">
+      טוען נתונים....
+    </div>
+  </div>
+</div>
+</body>
+</html>
