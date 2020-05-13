@@ -1,6 +1,6 @@
-var dataStore;
-var messages = [];
-var token = '';
+let dataStore;
+let messages = [];
+let token = '';
 
 class LoginComponent extends React.Component {
   constructor(props) {
@@ -24,15 +24,15 @@ class LoginComponent extends React.Component {
             dataStore =  jsonResponse;
             localStorage.setItem('token', token );
             localStorage.setItem('data', JSON.stringify(dataStore));
-            routeToCall('#posts');
+            location.href = '#posts';
             document.getElementById('pageWrapper').classList.remove('hideLeftBar');
           });
         } else { 
-          throw new Error(res)
+          throw new Error(res);
         }
       }
       catch (err) {
-        console.log(err.message)
+        console.log(err.message);
       }
     });
    
@@ -40,11 +40,10 @@ class LoginComponent extends React.Component {
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
+      <form className='loginForm' onSubmit={this.handleSubmit}>
         <h3>התנועה למשילות - כניסה לממשק ניהול</h3>
         <div><label>שם:</label><input name="name" type="text" placeholder="שם משתמש" /></div>
-        <div><label>סיסמא:</label><textarea name="token" placeholder="סיסמא" /></div>
-        <div><label>תמונה:</label><textarea name="token" placeholder="סיסמא" /></div>
+        <div><label>סיסמא:</label><input name="token" type="text" placeholder="סיסמא" /></div>
         <input type="submit" value="היכנס" />
       </form>
     )
@@ -60,7 +59,7 @@ class Post extends React.Component {
       this.isNew = false;
     }
     else {
-      this.state = {title: 'AAA', body: '' , id: (dataStore.posts[0].id + 1)};
+      this.state = {title: '', body: '' , id: (dataStore.posts[0].id + 1)};
     }
     
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -69,8 +68,16 @@ class Post extends React.Component {
 
   handleSubmit(event) {    
     event.preventDefault();
-    dataStore.posts.push( this.state );
-    //updateData();
+    let postData =  this.state;
+    if ( this.isNew ) {
+      dataStore.posts.push( postData );
+    }
+    else {
+      let post =  dataStore.posts.find(p=>p.id==postData.id);
+      Object.assign(post, postData);
+    }
+    updateData();
+    location.href = '#posts';
   }
 
   handleChange(event) {
@@ -81,8 +88,9 @@ class Post extends React.Component {
     return (
       <form className="postForm" onSubmit={this.handleSubmit}>
         <div><span>מזהה:</span><span>{this.state.id}</span></div>
-        <div><label>כותרת</label><input name="title" onChange={this.handleChange} type="text" placeholder="כותרת הפוסט" value={this.state.title} /></div>
-        <div><label>תוכן</label><textarea name="body" onChange={this.handleChange} placeholder="גוף הפוסט" >{this.state.body}</textarea></div>
+        <div><label>כותרת:</label><textarea name="title" onChange={this.handleChange} placeholder="כותרת הפוסט"  >{this.state.title}</textarea></div>  
+        <div><label>תוכן:</label><textarea name="body" onChange={this.handleChange} placeholder="גוף הפוסט" >{this.state.body}</textarea></div>  
+        <div><label>תמונה:</label><input name="name" type="text" placeholder="שם משתמש" /></div>
         <input type="submit" value="שמור" />
       </form>
     )
@@ -143,7 +151,7 @@ window.onhashchange = function(){
 function routeToCall(hash){
   switch(true) {
     case /#post\/\d+/.test(hash):
-      var postId = hash.match(/#post\/(\d+)/)[1];
+      let postId = hash.match(/#post\/(\d+)/)[1];
       React.render(
         <Post id={postId} />,
         document.getElementById('content')
