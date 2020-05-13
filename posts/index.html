@@ -12,20 +12,7 @@
        <div style="padding-top: 75px;">
             <main id="main">  
                 <script>
-                    var dataStore;
-                    if ( localStorage.getItem('data') ) {
-                        dataStore = localStorage.getItem('data');
-                    }
-                    else {
-                        fetch('../data.json').then(function(res){
-                            if (res.ok) {
-                                res.json().then(function(jsonResponse){
-                                    dataStore =  jsonResponse;
-                                });
-                            }
-                        }
-                    }
-                    console.log(dataStore);
+                    console.log(await getDataList('posts'));
                 </script>    
             </main>
         </div>

@@ -21,3 +21,28 @@ link.setAttribute('rel','icon');
 link.setAttribute('sizes','16x16');
 link.href = "/favicon.ico";
 document.getElementsByTagName( "head" )[0].appendChild( link );
+
+let getDataList = async function(category) {
+    var dataStore = localStorage.getItem('data');
+    if ( !dataStore ) {
+        fetch('../data.json').then(function(res){
+            try {
+              if (res.ok) {
+                res.json().then(function(jsonResponse){
+                  dataStore =  jsonResponse;
+                  localStorage.setItem('token', token );
+                  localStorage.setItem('data', JSON.stringify(dataStore));
+                  location.href = '#posts';
+                  document.getElementById('pageWrapper').classList.remove('hideLeftBar');
+                });
+              } else { 
+                console.log(res);
+              }
+            }
+            catch (err) {
+              console.log(err.message);
+            }
+          });
+    }
+    return (dataStore && dataStore[category]) ? dataStore[category] : [];
+}
