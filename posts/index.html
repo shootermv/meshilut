@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="/scripts/main.js"></script>
+        <title></title>
+    </head>
+<body>
+    <div>
+        <iframe src="../html/header.html" onload="this.before((this.contentDocument.body||this.contentDocument).children[0]);this.remove()"></iframe>
+       <!-- header code -->
+       <div style="padding-top: 75px;">
+            <main id="main">  
+                <script>
+                    var dataStore;
+                    if ( localStorage.getItem('data') ) {
+                        dataStore = localStorage.getItem('data');
+                    }
+                    else {
+                        fetch('../data.json').then(function(res){
+                            if (res.ok) {
+                                res.json().then(function(jsonResponse){
+                                    dataStore =  jsonResponse;
+                                });
+                            }
+                        }
+                    }
+                    console.log(dataStore);
+                </script>    
+            </main>
+        </div>
+    </div>
+</body>
+</html>

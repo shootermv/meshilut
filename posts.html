@@ -1,0 +1,40 @@
+{% extends "meshilut/base.html" %}
+{% load i18n %}
+{% block content %}
+<div id="main"> 
+    <h1>{% trans 'WelcomeHeading' %}</h1>
+    <section class="article-list-wrap">
+    {% for post in posts %}
+        
+        <article class="post-item">
+            <h4> {{ post.title|upper }}</h4>
+            <div class="caption">
+                 {{ post.body }}
+            </div>
+            <a href='post/{{post.pk}}'>לצפיה</a>
+        </article>
+      
+    {% endfor %}
+   
+    <div class="pagination">
+        <span class="step-links">
+            {% if posts.has_previous %}
+                <a href="?page=1">&laquo;</a>
+                <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+            {% endif %}
+    
+            <span class="current">
+                 {{ posts.number }} / {{ posts.paginator.num_pages }} 
+            </span>
+    
+            {% if posts.has_next %}
+                <a href="?page={{ posts.next_page_number }}">{{ posts.next_page_number }}</a>
+                <a href="?page={{ posts.paginator.num_pages }}">&raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+    </section>
+
+</div>
+</main> 
+{% endblock %}

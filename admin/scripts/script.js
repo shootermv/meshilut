@@ -53,9 +53,12 @@ class LoginComponent extends React.Component {
 class Post extends React.Component {
   constructor(props) {
     super(props); 
+
     this.isNew = true;
     if ( props.id ) {
-      this.state = JSON.parse(JSON.stringify(dataStore.posts.find(p=>p.id == props.id)));
+      let postData = JSON.parse(JSON.stringify(dataStore.posts.find(p=>p.id == props.id)));
+      Object.assign(props, postData);
+      this.state = props;
       this.isNew = false;
     }
     else {
@@ -85,15 +88,28 @@ class Post extends React.Component {
   }
 
   render() {
-    return (
-      <form className="postForm" onSubmit={this.handleSubmit}>
-        <div><span>מזהה:</span><span>{this.state.id}</span></div>
-        <div><label>כותרת:</label><textarea name="title" onChange={this.handleChange} placeholder="כותרת הפוסט"  >{this.state.title}</textarea></div>  
-        <div><label>תוכן:</label><textarea name="body" onChange={this.handleChange} placeholder="גוף הפוסט" >{this.state.body}</textarea></div>  
-        <div><label>תמונה:</label><input name="name" type="text" placeholder="שם משתמש" /></div>
-        <input type="submit" value="שמור" />
-      </form>
-    )
+    if ( this.state.doDelete ) {
+      return (
+        <div>
+          <h1>האם אתה בטוח?</h1>
+          <div>
+            <button>כן</button>
+            <button className='cancel' onclick="console.log('aaaa');location.href='#posts'">לא</button>
+          </div>
+        </div>
+      )
+    }
+    else {
+      return (
+        <form className="postForm" onSubmit={this.handleSubmit}>
+          <div><span>מזהה:</span><span>{this.state.id}</span></div>
+          <div><label>כותרת:</label><textarea name="title" onChange={this.handleChange} placeholder="כותרת הפוסט"  >{this.state.title}</textarea></div>  
+          <div><label>תוכן:</label><textarea name="body" onChange={this.handleChange} placeholder="גוף הפוסט" >{this.state.body}</textarea></div>  
+          <div><label>תמונה:</label><input name="name" type="text" placeholder="שם משתמש" /></div>
+          <input type="submit" value="שמור" />
+        </form>
+      )
+    }
   }
 }
 
@@ -112,6 +128,7 @@ class PostsList extends React.Component {
               <td>{post.title}</td>
               <td>{post.body}</td>
               <td><a href={'#post/'+post.id}>ערוך</a></td>
+              <td><a href={'#delete/'+post.id}>מחק</a></td>
             </tr>) 
           })}        
         </table>
@@ -149,11 +166,19 @@ window.onhashchange = function(){
  * Simplest router...
  **/
 function routeToCall(hash){
+  let itemId;
   switch(true) {
     case /#post\/\d+/.test(hash):
-      let postId = hash.match(/#post\/(\d+)/)[1];
+      itemId = hash.match(/#post\/(\d+)/)[1];
       React.render(
-        <Post id={postId} />,
+        <Post id={itemId} />,
+        document.getElementById('content')
+      );
+    break;
+    case /#delete\/\d+/.test(hash):
+      itemId = hash.match(/#delete\/(\d+)/)[1];
+      React.render(
+        <Post id={itemId} doDelete="true" />,
         document.getElementById('content')
       );
     break;
