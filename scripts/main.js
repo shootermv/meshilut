@@ -15,6 +15,25 @@ cssFiles.forEach(cssFile=>{
     document.getElementsByTagName( "head" )[0].appendChild( link );
 });
 
+class PostList extends React.Component {
+    constructor(props) {
+        super(props); 
+    }
+
+    render() {
+        
+        return (
+            <ul>
+                <li>asd</li>
+                <li>asd</li>
+                { this.props.items.map(function(post){
+                    return <li><a href={'post/'+post.id}>{post.title}</a></li>;
+                })}
+            </ul>
+        )
+    }
+}
+
 // favIcon
 var link = document.createElement( "link" );
 link.setAttribute('rel','icon');
@@ -22,27 +41,27 @@ link.setAttribute('sizes','16x16');
 link.href = "/favicon.ico";
 document.getElementsByTagName( "head" )[0].appendChild( link );
 
-let getDataList = async function(category) {
-    var dataStore = localStorage.getItem('data');
-    if ( !dataStore ) {
+let dataStore;
+let getDataList = function(category , callback) {
+    
+    if ( localStorage.getItem('data') ) {
+        dataStore =  localStorage.getItem('data');
+        callback( dataStore[category] );
+    }
+    else {
         fetch('../data.json').then(function(res){
             try {
               if (res.ok) {
                 res.json().then(function(jsonResponse){
-                  dataStore =  jsonResponse;
-                  localStorage.setItem('token', token );
-                  localStorage.setItem('data', JSON.stringify(dataStore));
-                  location.href = '#posts';
-                  document.getElementById('pageWrapper').classList.remove('hideLeftBar');
+                    dataStore =  jsonResponse;
+                    //localStorage.setItem('data', JSON.stringify(dataStore));
+                    callback( dataStore[category] );
                 });
-              } else { 
-                console.log(res);
-              }
+              } 
             }
             catch (err) {
-              console.log(err.message);
+                return {error:err.message};
             }
-          });
+        });
     }
-    return (dataStore && dataStore[category]) ? dataStore[category] : [];
 }
