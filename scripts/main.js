@@ -19,15 +19,13 @@ class PostList extends React.Component {
     constructor(props) {
         super(props); 
     }
-
     render() {
-        
         return (
             <ul>
                 <li>asd</li>
                 <li>asd</li>
                 { this.props.items.map(function(post){
-                    return <li><a href={'post/'+post.id}>{post.title}</a></li>;
+                    return <li><a href={'/post/'+post.id}>{post.title}</a></li>;
                 })}
             </ul>
         )
