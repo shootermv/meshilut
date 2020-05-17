@@ -3,12 +3,15 @@
  * Currently only GitHub is supported.
  */
 function doLogin( parentComponent ) {
+  
   this.error = "";
+
   /**
    * When secret exists. Creates the GitAPI Object
    */
   this.createAPIObject = function() {
-    gitApi = new gitAPI(
+    gitApiName = getGlobalVariable('appSettings');
+    gitApiName['API_Gate'](
       localStorage.getItem('secret'),
       function(){
         document.getElementById('pageWrapper').classList.remove('hideLeftBar');
@@ -29,6 +32,7 @@ function doLogin( parentComponent ) {
   }
   // User has not submitted his credentials
   else {
+    
     // create login form
     parentComponent.innerHTML = "<form className='loginForm'>"+
                                 "<h3>התנועה למשילות - כניסה לממשק ניהול</h3>"+
@@ -36,6 +40,7 @@ function doLogin( parentComponent ) {
                                 "<div><label>סיסמא:</label><input name='token' type='text' placeholder='סיסמא' /></div>"+
                                 "<input type='submit' value='היכנס' />"+
                               "</form>";
+                              
     // form callback
     parentComponent.children[0].onsubmit = function(event) {  
       event.preventDefault();

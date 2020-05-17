@@ -1,17 +1,33 @@
 [
     {  
         "name":"post",
-        "plural":"posts",
         "label":"פוסט",
         "labelPlural":"פוסטים",
-        "fields":[]
+        "fields":[
+            {"name":"title","label":"כותרת","type":"textfield"},
+            {"name":"body","label":"תוכן","type":"wysiwyg"},
+            {"name":"image","label":"תמונה","type":"file"}
+        ]
     },
     {  
         "name":"news-item",
-        "plural":"news-items",
         "label":"פריט חדשות",
         "labelPlural":"פריטי חדשות",
-        "fields":[]
+        "fields":[
+            {"name":"title","label":"כותרת","type":"textfield"},
+            {"name":"body","label":"תוכן","type":"wysiwyg"},
+            {"name":"image","label":"תמונה","type":"file"}
+        ]
+    },
+    {  
+        "name":"movies",
+        "label":"סרטון",
+        "labelPlural":"סרטונים",
+        "fields":[
+            {"name":"title","label":"כותרת","type":"textfield"},
+            {"name":"body","label":"תוכן","type":"wysiwyg"},
+            {"name":"image","label":"תמונה","type":"file"}
+        ]
     }
 
 ]

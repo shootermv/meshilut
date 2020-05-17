@@ -55,6 +55,12 @@ function routeToCall(){
  
   switch(true) {
     /** Page loader - init variables **/
+    case !getGlobalVariable('appSettings'):
+      setGlobalVariable( 'appSettings',  {
+        'API_Gate':GitHubAPI
+      });
+      routeToCall();
+    break;
     case !getGlobalVariable('logStore'):
       console.log('logStore');
       setGlobalVariable( 'logStore', {} );
@@ -72,35 +78,45 @@ function routeToCall(){
       console.log('contentTypes');
       loadSystemFile( 'contentTypes', './contentTypes.json', function(){
         if( getGlobalVariable('contentTypes').length > 0 ) {
-          var contentTypesSingle = '(' + getGlobalVariable('contentTypes').map(a=>a.name).join('|') +')';
-          regexExpressions.singleItemEdit = new RegExp('#'+contentTypesSingle+'\\/(\\d+)',"g");
-          regexExpressions.singleItemNew = new RegExp('#'+contentTypesSingle+'\\/new',"g");
-          console.log(regexExpressions.singleItem);
+          let contentTypesSingle = '(' + getGlobalVariable('contentTypes').map(a=>a.name).join('|') +')';
+          regexExpressions.itemManagment = new RegExp('#'+contentTypesSingle+'\\/((\\d+)|new|all)',"i");
+             
+          getGlobalVariable('contentTypes').reverse().forEach(contentType => {
+            document.getElementById('sidebarLinks').insertAdjacentHTML('afterbegin',  `
+              <li><h3>${contentType.labelPlural}</h3></li>
+              <li>
+                <a class="nav-link" href="#${contentType.name}/all">כל ה${contentType.labelPlural}</a>
+              </li>
+              <li>
+                <a class="nav-link" href="#${contentType.name}/new">הוסף ${contentType.label} חדש</a>
+              </li>
+              <hr/>
+            `);
+          });
         }
         routeToCall();
       }, routeToCall );
     break;
     /** Content Item management **/
-    case regexExpressions.singleItemEdit.test(hash):
-      console.log('post by id');
-      itemId = hash.match(/#post\/(\d+)/)[1];
-      document.getElementById('content').innerHTML = 'contentItemcontentItemcontentItemcontentItemcontentItemcontentItemcontentItemcontentItemcontentItemcontentItemcontentItemcontentItem';
-      '<contentItem id={itemId} />';
-      // document.getElementById('content')
-    
-    break;
-    case /#delete\/\d+/.test(hash):
-      console.log('delete post');
-      itemId = hash.match(/#delete\/(\d+)/)[1];
-      contentItemForm(document.getElementById('content'), 'post',111);
-      /*
-        '<contentItem id={itemId} doDelete="true" />',
-        document.getElementById('content')
-        */
-    break;
-    case regexExpressions.singleItemNew.test(hash):
-      console.log('post form');
-      contentItemForm(document.getElementById('content'), 'post',111);
+    case regexExpressions.itemManagment.test(hash):
+      console.log('Content Item');
+      hash = hash.replace('#','');
+      let params = hash.split('/');
+      let contentType = params.shift();
+      let op = 'new';
+      let id = '';
+      if (/^\d+$/.test(params[0])) {
+        id = params[0];
+        op = 'edit';
+      }
+      if (params[1] =='delete') {
+        op = 'delete';
+      }
+      if( params[0] == 'all') {
+        contentList(document.getElementById('content'), contentType );
+        return;
+      }
+      contentItemForm(document.getElementById('content'), contentType ,id , op);
     break;
     case '#logout'==hash:
       localStorage.removeItem('token');
@@ -108,10 +124,8 @@ function routeToCall(){
       localStorage.removeItem('data');
       location = '';
     break;
-    case '#posts'==hash:
     default:
-      console.log('post list');
-      contentList(document.getElementById('content'), 'posts');
+      document.getElementById('content').innerHTML = 'error';
     break;
   }
 }
@@ -172,58 +186,6 @@ async function updateData() {
     );
     */
 
-  } catch (err) {
-      console.error(err);
-      /*
-      React.render(
-        "<Message type='danger' message='שמירה נכשלה' />",
-        document.getElementById('messages')
-      );
-      */
-  }
-}
-
-async function createCommit() {
-  try {
-  
-      const github = new Octokat({ 'token': token });
-      
-      let repo = await github.repos('arielberg', 'meshilut').fetch();
-      let main = await repo.git.refs('heads/master').fetch();
-      let treeItems = [];
-  
-  
-      let markdownFile = await repo.git.blobs.create({
-          "content": "תוכן הפוסט",
-          "encoding": "utf-8"
-      });
-
-      treeItems.push({
-        path: 'te.tete',   
-        sha: markdownFile.sha,
-        mode: "100644",
-        type: "blob"
-      });
-  
-      let tree = await repo.git.trees.create({
-        tree: treeItems,
-        base_tree: main.object.sha
-      });
-    
-      let commit = await repo.git.commits.create({
-        message: `Created via Web 1`,
-        tree: tree.sha,
-        parents: [main.object.sha]});
-  
-      main.update({sha: commit.sha})
-      /*
-      React.render(
-        "<Message type='success' message='נשמר בהצלחה' />",
-        document.getElementById('messages')
-      );
-      */
-
-  
   } catch (err) {
       console.error(err);
       /*
