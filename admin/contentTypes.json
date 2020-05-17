@@ -1,11 +1,17 @@
 [
-    {
-        name:'Post',
-        plural:'Posts',
-        i18nName:'פוסט',
-        i18nPlural:'פוסטים',
-        fields:[
-            
-        ]
+    {  
+        "name":"post",
+        "plural":"posts",
+        "label":"פוסט",
+        "labelPlural":"פוסטים",
+        "fields":[]
+    },
+    {  
+        "name":"news-item",
+        "plural":"news-items",
+        "label":"פריט חדשות",
+        "labelPlural":"פריטי חדשות",
+        "fields":[]
     }
+
 ]

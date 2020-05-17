@@ -1,90 +1,80 @@
-class contentItem extends React.Component {
-    constructor(props) {
-      super(props); 
+/**
+ * Create a form for editing/adding content item
+ * @param {*} contentType 
+ * @param {*} editId 
+ */
+function contentItemForm ( parentElement, contentType , editId , op ) {
   
-      this.isNew = true;
-      if ( props.id ) {
-        let postData = JSON.parse(JSON.stringify(dataStore.posts.find(p=>p.id == props.id)));
-        Object.assign(props, postData);
-        this.state = props;
-        this.isNew = false;
-      }
-      else {
-        this.state = {title: '', body: '' , id: (dataStore.posts[0].id + 1)};
-      }
-      
-      this.handleSubmit = this.handleSubmit.bind(this);
-      this.handleChange = this.handleChange.bind(this);
+  // is new item
+  this.isNew = true;
+
+  if ( editId ) {
+   // Object.assign(props, ...dataStore.posts.find(p=>p.id == props.id));
+    this.isNew = false;
+  }
+   
+  this.handleSubmit = function(event) {    
+    event.preventDefault();
+    let postData =  this.state;
+    if ( this.isNew ) {
+      dataStore.posts.push( postData );
     }
-  
-    handleSubmit(event) {    
-      event.preventDefault();
-      let postData =  this.state;
-      if ( this.isNew ) {
-        dataStore.posts.push( postData );
-      }
-      else {
-        let post =  dataStore.posts.find(p=>p.id==postData.id);
-        Object.assign(post, postData);
-      }
-      updateData();
-      location.href = '#posts';
+    else {
+      let post =  dataStore.posts.find(p=>p.id==postData.id);
+      Object.assign(post, postData);
     }
-  
-    handleChange(event) {
-      this.state[event.target.name] =  event.target.value;
-    }
-  
-    handleFileChange(event) {
-      this.state[event.target.name] =  event.target.value;
-    }
-  
-    render() {
-      if ( this.state.doDelete ) {
-        return (
-          <div>
-            <h1>האם אתה בטוח?</h1>
-            <div>
-              <button>כן</button>
-              <button className='cancel' onclick="console.log('aaaa');location.href='#posts'">לא</button>
-            </div>
-          </div>
-        )
-      }
-      else {
-        return (
-          <form className="postForm" onSubmit={this.handleSubmit}>
-            <div><span>מזהה:</span><span>{this.state.id}</span></div>
-            <div><label>כותרת:</label><textarea name="title" onChange={this.handleChange} placeholder="כותרת הפוסט"  >{this.state.title}</textarea></div>  
-            <div><label>תוכן:</label><textarea name="body" onChange={this.handleChange} placeholder="גוף הפוסט" >{this.state.body}</textarea></div>  
-            <div><label>תמונה:</label><input name="name" type="file" onchange={this.handleChange}  /></div>
-            <input type="submit" value="שמור" />
-          </form>
-        )
-      }
-    }
+    updateData();
+    location.href = '#';
   }
   
-class itemList extends React.Component { 
-  render() {
-    return (
+  this.addFile = function(event) {
+    this.state[event.target.name] =  event.target.value;
+  }
+  
+   
+  if ( op == 'delete' ) {
+    parentElement.innerHTML = `
       <div>
-        <h1>פוסטים</h1>
-        <table>
-          <tr>
-            <th>כותרת</th>
-          </tr>
-          { dataStore.posts.map((post) => {     
-            return (<tr>
-              <td>{post.id}</td>
-              <td>{post.title}</td>
-              <td>{post.body}</td>
-              <td><a href={'#post/'+post.id}>ערוך</a></td>
-              <td><a href={'#delete/'+post.id}>מחק</a></td>
-            </tr>) 
-          })}        
-        </table>
-      </div>
-    )
+        <h1>האם אתה בטוח?</h1>
+        <div>
+          <button>כן</button>
+          <button className='cancel' onclick="console.log('aaaa');location.href='#posts'">לא</button>
+        </div>
+      </div>`;
   }
+  else {
+    parentElement.innerHTML = `
+      <form className="postForm" onSubmit={this.handleSubmit}>
+        <div><span>מזהה:</span><span>${editId}</span></div>
+        <div><label>כותרת:</label><textarea name="title" onChange={this.handleChange} placeholder="כותרת הפוסט"  >{this.state.title}</textarea></div>  
+        <div><label>תוכן:</label><textarea name="body" onChange={this.handleChange} placeholder="גוף הפוסט" >{this.state.body}</textarea></div>  
+        <div><label>תמונה:</label><input name="name" type="file" onchange={this.handleChange}  /></div>
+        <input type="submit" value="שמור" />
+      </form>
+      `;
+  }
+}
+  
+function contentList(parentElement) {
+  let dataStore = getGlobalVariable('dataStore');
+  console.log(dataStore);
+  parentElement.innerHTML = `<div>
+      <h1>פוסטים</h1>
+      <table>
+        <tr>
+          <th>כותרת</th>
+          <th>כותרת</th>
+          <th>כותרת</th>
+          <th>כותרת</th>
+        </tr>
+        ${ dataStore.posts.map((item) => 
+          `<tr>
+            <td>${item.id}</td>
+            <td>${item.title}</td>
+            <td>${item.body}</td>
+            <td><a href=${'#post/'+item.id}>ערוך</a></td>
+            <td><a href=${'#delete/'+item.id}>מחק</a></td>
+          </tr>` )}        
+      </table>
+    </div>`;
 }

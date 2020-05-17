@@ -1,107 +1,125 @@
-var loadBaseFile = function( variableName , filePath ) {
-  
+/**
+ * Load settings file (JSON). 
+ * called from the page loader flow
+ */
+var loadSystemFile = function( variableName , filePath, onSuccess , onError ) {
+
   if ( localStorage.getItem(variableName) ) {
     window[variableName] = JSON.parse(localStorage.getItem(variableName));
-    routeToCall();
+    onSuccess();
     return;
   }
 
-  window[variableName] = {}
+  window[variableName] = {};
   
-  
-
   fetch(filePath)
-    .then(function(res){
+    .then(function(response){
       if (!response.ok) {
-          throw Error(response.statusText);
+        throw Error(response.statusText);
       }
-      return response;
-    }).then(function(res){
-        window[variableName] = JSON.parse(jsonResponse);
-        routeToCall();
+      return response.json();
+    }).then(function(json){
+        window[variableName] = json;
+        onSuccess();
       })
     .catch(function(error) {
-      routeToCall();
+      onError();
     });
 }
 
+/*
+* Get system variable 
+* all variables should be set using this functions
+*/
 var setGlobalVariable = function(variableName, variableValue){
   window[variableName] = variableValue;
 }
 
-var getGlobalVariable = function(variableName){
+/*
+* Get system variable 
+* all variables should be accessed using this functions
+*/
+var getGlobalVariable = function(variableName) {
   return window[variableName];
 }
 
 /**
  * Simplest router...
+ * Create a page loading flow
  **/
+let regexExpressions =  {};
+
 function routeToCall(){
 
   let hash = window.location.hash;
-  let itemId;
-
+ 
   switch(true) {
+    /** Page loader - init variables **/
     case !getGlobalVariable('logStore'):
+      console.log('logStore');
       setGlobalVariable( 'logStore', {} );
       routeToCall();
     break;
     case !getGlobalVariable('gitApi'):
-      React.render(
-        <LoginComponent />,
-        document.getElementById('content')
-      );
+      console.log('gitApi');
+      doLogin(document.getElementById('content'));
     break;
     case !getGlobalVariable('dataStore'):
-      loadBaseFile( 'dataStore', '../dataStore.json' );
-      routeToCall();
+      console.log('dataStore');
+      loadSystemFile( 'dataStore', '../dataStore.json' , routeToCall, routeToCall );
     break;
     case !getGlobalVariable('contentTypes'):
-      loadBaseFile( 'contentTypes', '../contentTypes.json' );
-      routeToCall();
+      console.log('contentTypes');
+      loadSystemFile( 'contentTypes', './contentTypes.json', function(){
+        if( getGlobalVariable('contentTypes').length > 0 ) {
+          var contentTypesSingle = '(' + getGlobalVariable('contentTypes').map(a=>a.name).join('|') +')';
+          regexExpressions.singleItemEdit = new RegExp('#'+contentTypesSingle+'\\/(\\d+)',"g");
+          regexExpressions.singleItemNew = new RegExp('#'+contentTypesSingle+'\\/new',"g");
+          console.log(regexExpressions.singleItem);
+        }
+        routeToCall();
+      }, routeToCall );
     break;
-    case /#post\/\d+/.test(hash):
+    /** Content Item management **/
+    case regexExpressions.singleItemEdit.test(hash):
+      console.log('post by id');
       itemId = hash.match(/#post\/(\d+)/)[1];
-      React.render(
-        <contentItem id={itemId} />,
-        document.getElementById('content')
-      );
+      document.getElementById('content').innerHTML = 'contentItemcontentItemcontentItemcontentItemcontentItemcontentItemcontentItemcontentItemcontentItemcontentItemcontentItemcontentItem';
+      '<contentItem id={itemId} />';
+      // document.getElementById('content')
+    
     break;
     case /#delete\/\d+/.test(hash):
+      console.log('delete post');
       itemId = hash.match(/#delete\/(\d+)/)[1];
-      React.render(
-        <contentItem id={itemId} doDelete="true" />,
+      contentItemForm(document.getElementById('content'), 'post',111);
+      /*
+        '<contentItem id={itemId} doDelete="true" />',
         document.getElementById('content')
-      );
+        */
     break;
-    case '#newPost'==hash:
-      React.render(
-        <contentItem />,
-        document.getElementById('content')
-      );
+    case regexExpressions.singleItemNew.test(hash):
+      console.log('post form');
+      contentItemForm(document.getElementById('content'), 'post',111);
     break;
     case '#logout'==hash:
       localStorage.removeItem('token');
+      localStorage.removeItem('secret');
       localStorage.removeItem('data');
       location = '';
     break;
     case '#posts'==hash:
     default:
-      React.render(
-        <itemList />,
-        document.getElementById('content')
-      );
+      console.log('post list');
+      contentList(document.getElementById('content'), 'posts');
     break;
   }
 }
 
-class Message extends React.Component { 
-  constructor(props) {
-    super(props); 
-  }
+class Message  { 
   render() {
     return (
-      <div className={ "alert alert-" + this.props.type }>{ this.props.message }</div>
+      '<div className={ "alert alert-" + this.props.type }>{ this.props.message }</div>'
     )
   }
 }
@@ -148,17 +166,20 @@ async function updateData() {
     main.update({sha: commit.sha})
 
     
-    React.render(
-      <Message type='success' message='נשמר בהצלחה' />,
+    /*React.render(
+      "<Message type='success' message='נשמר בהצלחה' />",
       document.getElementById('messages')
     );
+    */
 
   } catch (err) {
       console.error(err);
+      /*
       React.render(
-        <Message type='danger' message='שמירה נכשלה' />,
+        "<Message type='danger' message='שמירה נכשלה' />",
         document.getElementById('messages')
       );
+      */
   }
 }
 
@@ -195,18 +216,21 @@ async function createCommit() {
         parents: [main.object.sha]});
   
       main.update({sha: commit.sha})
-  
+      /*
       React.render(
-        <Message type='success' message='נשמר בהצלחה' />,
+        "<Message type='success' message='נשמר בהצלחה' />",
         document.getElementById('messages')
       );
+      */
 
   
   } catch (err) {
       console.error(err);
+      /*
       React.render(
-        <Message type='danger' message='שמירה נכשלה' />,
+        "<Message type='danger' message='שמירה נכשלה' />",
         document.getElementById('messages')
       );
+      */
   }
 }
