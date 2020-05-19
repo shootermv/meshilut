@@ -3,17 +3,31 @@
  * @param {*} contentType 
  * @param {*} editId 
  */
+var editedItem = {};
+
 function contentItemForm ( parentElement, contentType , editId , op ) {
-  
-  // is new item
-  this.isNew = true;
-  this.typeData = getGlobalVariable('contentTypes').find(ty=>ty.name==contentType);
-  this.item = {};
-  if ( editId ) {
-    this.item = dataStore[contentType].find(p=>p.id == editId);
-    this.isNew = false;
+
+  // Get content type data description
+  this.typeData = getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
+
+  /** load edit item if needed (item is kept between tabs) */
+  debugger;
+  if ( editedItem.id != editId || editedItem.type != contentType ) {
+    editedItem = {};
+    if ( editId != 'new' ) {
+      editedItem = dataStore[contentType].find( p => p.id == editId );
+    }
+    // init to the default value
+    this.typeData.fields.forEach(function(field){
+      if ( field.defaultValue && !editedItem[field.name]){
+        editedItem[field.name] = field.defaultValue ;
+      }
+    });
+
+    editedItem.type = contentType;
+    editedItem.id = editId;
   }
-   
+  
   this.handleSubmit = function(event) {    
     event.preventDefault();
     let postData =  this.state;
@@ -31,39 +45,100 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
   this.addFile = function(event) {
     this.state[event.target.name] =  event.target.value;
   }
-  
-   
-  if ( op == 'delete' ) {
-    parentElement.innerHTML = `
+
+  // Build node tabs
+  let baseURL = '#' + contentType + '/' + ( editId ? editId : 'new' ) + '/';
+  let links = [{ 'op':'edit', 'label':'עריכה' }];
+  if ( true ) { // TODO: check i18n support
+    links.push({ 'op':'en', 'label':'תרגום' });
+  }
+  links.push({ 'op':'seo', 'label':'SEO' });
+
+  let InnerHTML =  `
+  <h1>עריכת ${this.typeData.label}</h1>
+  <ul class="nav nav-tabs">
+    ${ links.map(field=>
+      `<li class="nav-item">
+        <a class="nav-link ${ field.op==op ? 'active' : '' }" href='${baseURL+field.op}'>${field.label}</a>
+      </li>`).join('') }
+  </ul><form >`;
+  let wysiwygs = [];
+
+  switch ( op ) {
+   case 'delete':
+    InnerHTML+= `
       <div>
-        <h1>האם אתה בטוח?</h1>
+        <h3>האם אתה בטוח שברצונך למחוק פריט זה?</h3>
         <div>
           <button>כן</button>
-          <button className='cancel' onclick="location.href='#posts'">לא</button>
+          <button className='cancel' onclick="location.href='#${ contentType }/all'">לא</button>
         </div>
       </div>`;
-  }
-  else {
-    parentElement.innerHTML = `
-      <h1>עריכת ${this.typeData.label}</h1>
-      <form className="postForm" onSubmit={this.handleSubmit}>
-        <div><span>מזהה:</span><span>${editId}</span></div>
-        <div><label>כותרת:</label><textarea name="title" placeholder="כותרת הפוסט"  >${item.title}</textarea></div>  
-        <div><label>תוכן:</label><textarea id='sample' name="body" placeholder="גוף הפוסט" >${item.body}</textarea></div>  
-        
-        <div><label>תמונה:</label><input name="name" type="file" onchange={this.handleChange}  /></div>
+  break;
+  case 'edit':
+  case 'new':
+  case 'en':  
+    InnerHTML+=`${  editedItem.Id  ? `<div><span>מזהה:</span><span>${ editedItem.Id }</span></div>`: "" }
+        ${this.typeData.fields.map(function(field){
+          let fieldHTML = `<div>`;
+          fieldHTML += `<label>${ field.label }</label>`;
+          if (op == 'en' && field.i18n===false ) return '';
+          switch(field.type){
+            case 'wysiwyg':
+              wysiwygs.push( 'formitem_'+ field.name );
+            case 'textfield':
+              fieldHTML += `<textarea id='formitem_${ field.name }' name='${ field.name }' placeholder='${ field.placeholder }' >${ editedItem[field.name] ? editedItem[field.name] : '' }</textarea>`;
+            break;
+            case 'file':
+              fieldHTML += `<div class='preview'></div><input id='formitem_${ field.name }' name="${ field.name }" type="file" />`;
+            break;
+          }
+          fieldHTML += `</div>`;
+          return fieldHTML;
+        }).join('')} 
         <input type="submit" value="שמור" />
-      </form>
-      
-      `;
-      
-      SUNEDITOR.create('sample', {
+        <input type="button" class='cancel' value="בטל" />`;
+    break;
+    case 'seo':
+      InnerHTML+=`<input type='text' />`;
+    break;
+    default:
+  }  
+  InnerHTML+=`</form>`;
+
+
+
+  parentElement.innerHTML = InnerHTML;
+  
+  this.typeData.fields.forEach(field => {
+    if ( field.type == 'wysiwyg' ) {
+      SUNEDITOR.create('formitem_'+field.name , {
         buttonList: [
-            ['undo', 'redo', 'removeFormat'],
-            ['align', 'fontSize', 'hiliteColor'],
-            ['horizontalRule', 'image', 'template']
+            ['undo', 'redo'],
+            ['align', 'horizontalRule', 'list', 'table', 'fontSize']
         ],
       });
+    }
+    if ( field.type == 'file' ) {
+      document.getElementById('formitem_'+field.name).onchange = function(event) {
+        let fileList = this.files;
+        let image = document.createElement("img");
+        image.src = window.URL.createObjectURL(fileList[0]);
+        image.setAttribute('style','max-width:200px;max-heigth:200px;');
+        let previewElement = this.parentElement.querySelector('.preview');
+        previewElement.innerHTML = '';
+        previewElement.appendChild(image);
+
+        var reader = new FileReader();
+        reader.readAsText(fileList[0], "UTF-8");
+        reader.onload = function (evt) {
+           // evt.target.result;
+        }
+     }
+    }
+  });
+  parentElement.querySelector('form').onsubmit = function(event){
+    event.preventDefault();
   }
 }
   
@@ -71,9 +146,12 @@ function contentList(parentElement, contentType) {
   let dataStore = getGlobalVariable('dataStore');
   if( dataStore[contentType] == null ) { dataStore[contentType] = []; }
   this.typeData = getGlobalVariable('contentTypes').find(ty=>ty.name==contentType);
-  parentElement.innerHTML = `<div>
-      <h1>${ this.typeData.labelPlural }</h1>
-      <table>
+  let innerHTML = '';
+  if ( dataStore[contentType].length == 0 ) {
+    innerHTML = `אין פריטים`;
+  }
+  else {
+    innerHTML = `<table>
         <tr>
           <th>#</th>
           <th>כותרת</th>
@@ -84,10 +162,13 @@ function contentList(parentElement, contentType) {
           `<tr>
             <td>${item.id}</td>
             <td>${item.title}</td>
-            <td>${item.body}</td>
             <td><a href=${'#post/'+item.id}>ערוך</a></td>
             <td><a href=${'#post/'+item.id+'/delete'}>מחק</a></td>
           </tr>` ).join("")}        
-      </table>
+      </table>`;
+  }
+  parentElement.innerHTML = `<div>
+      <h1>${ this.typeData.labelPlural }</h1>
+      ${ innerHTML }
     </div>`;
 }

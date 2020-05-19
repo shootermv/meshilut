@@ -2,6 +2,7 @@
  * Load settings file (JSON). 
  * called from the page loader flow
  */
+
 var loadSystemFile = function( variableName , filePath, onSuccess , onError ) {
 
   if ( localStorage.getItem(variableName) ) {
@@ -43,6 +44,14 @@ var getGlobalVariable = function(variableName) {
   return window[variableName];
 }
 
+var setLocalStorage = function(property, obj) {
+  localStorage.setItem(property, JSON.stringify(obj));
+}
+
+var getLocalStorage = function(property) {
+  return JSON.parse( localStorage.getItem(property) );
+}
+
 /**
  * Simplest router...
  * Create a page loading flow
@@ -56,16 +65,11 @@ function routeToCall(){
   switch(true) {
     /** Page loader - init variables **/
     case !getGlobalVariable('appSettings'):
-      setGlobalVariable( 'appSettings',  {
-        'API_Gate':GitHubAPI
-      });
-      routeToCall();
+      loadSystemFile( 'appSettings', './appSettings.json' , routeToCall, routeToCall );
     break;
     case !getGlobalVariable('logStore'):
       console.log('logStore');
       setGlobalVariable( 'logStore', {} );
-      routeToCall();
-    break;
     case !getGlobalVariable('gitApi'):
       console.log('gitApi');
       doLogin(document.getElementById('content'));
@@ -103,19 +107,16 @@ function routeToCall(){
       hash = hash.replace('#','');
       let params = hash.split('/');
       let contentType = params.shift();
-      let op = 'new';
-      let id = '';
-      if (/^\d+$/.test(params[0])) {
-        id = params[0];
-        op = 'edit';
-      }
-      if (params[1] =='delete') {
-        op = 'delete';
-      }
+
+      // If List is requested
       if( params[0] == 'all') {
         contentList(document.getElementById('content'), contentType );
         return;
       }
+      // Else if Item form is requested
+      let id  = params.shift();
+      let op = ( params.length > 0 )? params[0] : 'edit';
+
       contentItemForm(document.getElementById('content'), contentType ,id , op);
     break;
     case '#logout'==hash:
@@ -146,53 +147,3 @@ window.onload = function(e) {
 window.onhashchange = function(){
   routeToCall();
 };
-
-async function updateData() {
-  try {
-    const github = new Octokat({'token': token }); 
-    let repo = await github.repos('arielberg', 'meshilut').fetch();
-    let main = await repo.git.refs('heads/master').fetch();
-    let treeItems = [];
-
-
-    let markdownFile = await repo.git.blobs.create({
-        "content": JSON.stringify(dataStore),
-        "encoding": "utf-8"
-    });
-
-    treeItems.push({
-      path: 'data.json',   
-      sha: markdownFile.sha,
-      mode: "100644",
-      type: "blob"
-    });
-
-    let tree = await repo.git.trees.create({
-      tree: treeItems,
-      base_tree: main.object.sha
-    });
-
-    let commit = await repo.git.commits.create({
-      message: `Created via Web 1`,
-      tree: tree.sha,
-      parents: [main.object.sha]});
-
-    main.update({sha: commit.sha})
-
-    
-    /*React.render(
-      "<Message type='success' message='נשמר בהצלחה' />",
-      document.getElementById('messages')
-    );
-    */
-
-  } catch (err) {
-      console.error(err);
-      /*
-      React.render(
-        "<Message type='danger' message='שמירה נכשלה' />",
-        document.getElementById('messages')
-      );
-      */
-  }
-}

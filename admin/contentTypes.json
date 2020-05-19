@@ -4,9 +4,9 @@
         "label":"פוסט",
         "labelPlural":"פוסטים",
         "fields":[
-            {"name":"title","label":"כותרת","type":"textfield"},
-            {"name":"body","label":"תוכן","type":"wysiwyg"},
-            {"name":"image","label":"תמונה","type":"file"}
+            {"name":"title","label":"כותרת","type":"textfield", "placeholder":"כותרת הפוסט"},
+            {"name":"body","label":"תוכן","type":"wysiwyg", "placeholder":"גוף הפוסט"},
+            {"name":"image","label":"תמונה","type":"file", "i18n":false}
         ]
     },
     {  
@@ -16,7 +16,7 @@
         "fields":[
             {"name":"title","label":"כותרת","type":"textfield"},
             {"name":"body","label":"תוכן","type":"wysiwyg"},
-            {"name":"image","label":"תמונה","type":"file"}
+            {"name":"image","label":"תמונה","type":"file", "i18n":false}
         ]
     },
     {  
@@ -25,8 +25,7 @@
         "labelPlural":"סרטונים",
         "fields":[
             {"name":"title","label":"כותרת","type":"textfield"},
-            {"name":"body","label":"תוכן","type":"wysiwyg"},
-            {"name":"image","label":"תמונה","type":"file"}
+            {"name":"url","label":"כתובת (URL)","type":"textfield" , "i18n":false }
         ]
     }
 
