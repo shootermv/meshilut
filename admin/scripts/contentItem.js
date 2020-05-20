@@ -172,21 +172,12 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
       submitButton.innerText = 'שמור';
       submitButton.onclick = function(){
         let APIconnect = getGlobalVariable('gitApi');
-        APIconnect.addFile(JSON.stringify(editedItem), contentType+'.'+editId );
-        APIconnect.commitChanges('Save post: ' + editId );
-
-        /***
-         * 
-         * this.files = [];
-    /*
-    this.addFile = async function ( ){
-      let file = await repo.git.blobs.create({
-        "content": "תוכן הפוסט",
-        "encoding": "utf-8"});
-      files.push(file );
-    }
-*/ 
-        console.log(JSON.stringify(editedItem));
+        let files = [{
+          "content":  JSON.stringify(JSON.stringify(editedItem)),
+          "filePath": contentType+'/'+editId+'/index.json',
+          "encoding": "utf-8"
+        }];
+        APIconnect.commitChanges('Save post: ' + editId, files);
       }
       submitButtons.appendChild(submitButton);
       submitButtons.appendChild(cancelButton);      
