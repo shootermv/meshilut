@@ -1,5 +1,9 @@
 /**
  * Create a form for editing/adding content item
+ * 
+ * TODO: Split to sub-functions
+ * TODO: Support generic i18n
+ * 
  * @param {*} contentType 
  * @param {*} editId 
  */
@@ -11,7 +15,6 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
   this.typeData = getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
 
   /** load edit item if needed (item is kept between tabs) */
-  debugger;
   if ( editedItem.id != editId || editedItem.type != contentType ) {
     editedItem = {};
     if ( editId != 'new' ) {
@@ -54,95 +57,153 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
   }
   links.push({ 'op':'seo', 'label':'SEO' });
 
-  let InnerHTML =  `
-  <h1>עריכת ${this.typeData.label}</h1>
-  <ul class="nav nav-tabs">
-    ${ links.map(field=>
-      `<li class="nav-item">
-        <a class="nav-link ${ field.op==op ? 'active' : '' }" href='${baseURL+field.op}'>${field.label}</a>
-      </li>`).join('') }
-  </ul><form >`;
-  let wysiwygs = [];
-
   switch ( op ) {
    case 'delete':
-    InnerHTML+= `
+    parentElement.innerHTML = `
       <div>
         <h3>האם אתה בטוח שברצונך למחוק פריט זה?</h3>
         <div>
-          <button>כן</button>
+          <button id='approveDelete'>כן</button>
           <button className='cancel' onclick="location.href='#${ contentType }/all'">לא</button>
         </div>
       </div>`;
-  break;
-  case 'edit':
-  case 'new':
-  case 'en':  
-    InnerHTML+=`${  editedItem.Id  ? `<div><span>מזהה:</span><span>${ editedItem.Id }</span></div>`: "" }
-        ${this.typeData.fields.map(function(field){
-          let fieldHTML = `<div>`;
-          fieldHTML += `<label>${ field.label }</label>`;
-          if (op == 'en' && field.i18n===false ) return '';
-          switch(field.type){
-            case 'wysiwyg':
-              wysiwygs.push( 'formitem_'+ field.name );
-            case 'textfield':
-              fieldHTML += `<textarea id='formitem_${ field.name }' name='${ field.name }' placeholder='${ field.placeholder }' >${ editedItem[field.name] ? editedItem[field.name] : '' }</textarea>`;
-            break;
-            case 'file':
-              fieldHTML += `<div class='preview'></div><input id='formitem_${ field.name }' name="${ field.name }" type="file" />`;
-            break;
-          }
-          fieldHTML += `</div>`;
-          return fieldHTML;
-        }).join('')} 
-        <input type="submit" value="שמור" />
-        <input type="button" class='cancel' value="בטל" />`;
+    parentElement.querySelector('#approveDelete').onclick = function(event){
+      //TODO: Support delete
+      alert('TODO: currently unsuported!')
+    }
     break;
+    case 'edit':
+    case 'new':
+    case 'en':  
     case 'seo':
-      InnerHTML+=`<input type='text' />`;
-    break;
-    default:
-  }  
-  InnerHTML+=`</form>`;
+      // Set Fields By OP type
+      let formFields = this.typeData.fields;
+      switch( op ) {
+        case 'en':
+          formFields = JSON.parse(JSON.stringify(formFields.filter( f=>f.i18n!==false )));
+          formFields.forEach( f => f.name = op+'_'+f.name );
+        break;
+        case 'seo':
+          formFields = getGlobalVariable('SEOFields');
+        break;
+      }
 
+      parentElement.innerHTML = `<h1>עריכת ${this.typeData.label}</h1>
+      <ul class="nav nav-tabs">
+        ${ links.map(field=>
+          `<li class="nav-item">
+            <a class="nav-link ${ field.op==op ? 'active' : '' }" href='${baseURL+field.op}'>${field.label}</a>
+          </li>`).join('') }
+      </ul>`;
+      if( editedItem.id !='new') {
+        parentElement.innerHTML +=  `<div><span>מזהה:</span><span>${ editedItem.id }</span></div>`;
+      }
 
+      let form = document.createElement('form');
+      parentElement.appendChild(form);
+      formFields.forEach( function(field) {
+            let fieldDiv = document.createElement('div');
+            form.appendChild(fieldDiv);
+            
+            fieldDiv.innerHTML = `<label>${ field.label }</label>`;
 
-  parentElement.innerHTML = InnerHTML;
-  
-  this.typeData.fields.forEach(field => {
-    if ( field.type == 'wysiwyg' ) {
-      SUNEDITOR.create('formitem_'+field.name , {
-        buttonList: [
-            ['undo', 'redo'],
-            ['align', 'horizontalRule', 'list', 'table', 'fontSize']
-        ],
+            switch(field.type){
+              case 'wysiwyg':
+              case 'textfield':
+                let textarea = document.createElement('textarea');
+                textarea.id='formitem_'+ field.name;
+                textarea.name= field.name;
+                textarea.placeholder= field.placeholder;
+                textarea.value = editedItem[field.name] ? editedItem[field.name] : '';
+                fieldDiv.appendChild(textarea);
+                fieldDiv.onchange = function(event){
+                  editedItem[field.name] = event.target.value;
+                }
+
+                if ( field.type == 'wysiwyg' ) {
+                  var suneditor = SUNEDITOR.create('formitem_'+ field.name , {
+                    buttonList: [
+                        ['undo', 'redo'],
+                        ['align', 'horizontalRule', 'list', 'table', 'fontSize']
+                    ],
+                  });
+                  suneditor.onChange = function(htmlValue){
+                    editedItem[field.name] = htmlValue;
+                  }
+                }
+              break;
+              case 'file':
+                fieldDiv.innerHTML += `<div class='preview'></div>`;
+                let fileUploader = document.createElement('input');
+                fieldDiv.appendChild(fileUploader);
+                fileUploader.id='formitem_'+ field.name;
+                fileUploader.name= field.name;
+                fileUploader.type="file";
+                fileUploader.onchange = function(event) {
+                  let fileList = this.files;
+                  let image = document.createElement("img");
+                  image.src = window.URL.createObjectURL(fileList[0]);
+                  image.setAttribute('style','max-width:200px;max-heigth:200px;');
+                  let previewElement = this.parentElement.querySelector('.preview');
+                  previewElement.innerHTML = '';
+                  previewElement.appendChild(image);
+      
+                  var reader = new FileReader();
+                  reader.readAsText(fileList[0], "UTF-8");
+                  reader.onload = function (evt) {
+                    // evt.target.result;
+                  }
+                }
+              break;
+            }
+            
       });
-    }
-    if ( field.type == 'file' ) {
-      document.getElementById('formitem_'+field.name).onchange = function(event) {
-        let fileList = this.files;
-        let image = document.createElement("img");
-        image.src = window.URL.createObjectURL(fileList[0]);
-        image.setAttribute('style','max-width:200px;max-heigth:200px;');
-        let previewElement = this.parentElement.querySelector('.preview');
-        previewElement.innerHTML = '';
-        previewElement.appendChild(image);
-
-        var reader = new FileReader();
-        reader.readAsText(fileList[0], "UTF-8");
-        reader.onload = function (evt) {
-           // evt.target.result;
+      let submitButtons = document.createElement('div');
+      let cancelButton = document.createElement('button');
+      cancelButton.innerText = 'בטל';
+      cancelButton.className = 'cancel';
+      cancelButton.onclick = function(){
+        if( confirm('האם אתה בטוח?') ) {
+          alert('ok');
         }
-     }
+      }
+      let submitButton = document.createElement('button');
+      submitButton.className = 'submit';
+      submitButton.innerText = 'שמור';
+      submitButton.onclick = function(){
+        let APIconnect = getGlobalVariable('gitApi');
+        APIconnect.addFile(JSON.stringify(editedItem), contentType+'.'+editId );
+        APIconnect.commitChanges('Save post: ' + editId );
+
+        /***
+         * 
+         * this.files = [];
+    /*
+    this.addFile = async function ( ){
+      let file = await repo.git.blobs.create({
+        "content": "תוכן הפוסט",
+        "encoding": "utf-8"});
+      files.push(file );
     }
-  });
-  parentElement.querySelector('form').onsubmit = function(event){
-    event.preventDefault();
+*/ 
+        console.log(JSON.stringify(editedItem));
+      }
+      submitButtons.appendChild(submitButton);
+      submitButtons.appendChild(cancelButton);      
+      form.appendChild(submitButtons);
+
+      form.onsubmit = function(event){
+        event.preventDefault();
+      }
+    break;
   }
 }
-  
-function contentList(parentElement, contentType) {
+
+/**
+ * Display List of items (For the 'all' callback)
+ * TODO: Add pager
+ */
+function contentList( parentElement, contentType ) {
   let dataStore = getGlobalVariable('dataStore');
   if( dataStore[contentType] == null ) { dataStore[contentType] = []; }
   this.typeData = getGlobalVariable('contentTypes').find(ty=>ty.name==contentType);

@@ -68,18 +68,17 @@ function routeToCall(){
       loadSystemFile( 'appSettings', './appSettings.json' , routeToCall, routeToCall );
     break;
     case !getGlobalVariable('logStore'):
-      console.log('logStore');
       setGlobalVariable( 'logStore', {} );
     case !getGlobalVariable('gitApi'):
-      console.log('gitApi');
       doLogin(document.getElementById('content'));
     break;
     case !getGlobalVariable('dataStore'):
-      console.log('dataStore');
       loadSystemFile( 'dataStore', '../dataStore.json' , routeToCall, routeToCall );
     break;
+    case !getGlobalVariable('SEOFields'):
+      loadSystemFile( 'SEOFields', './SEOFields.json' , routeToCall, routeToCall );
+    break;
     case !getGlobalVariable('contentTypes'):
-      console.log('contentTypes');
       loadSystemFile( 'contentTypes', './contentTypes.json', function(){
         if( getGlobalVariable('contentTypes').length > 0 ) {
           let contentTypesSingle = '(' + getGlobalVariable('contentTypes').map(a=>a.name).join('|') +')';
@@ -103,7 +102,6 @@ function routeToCall(){
     break;
     /** Content Item management **/
     case regexExpressions.itemManagment.test(hash):
-      console.log('Content Item');
       hash = hash.replace('#','');
       let params = hash.split('/');
       let contentType = params.shift();
@@ -127,6 +125,8 @@ function routeToCall(){
     break;
     default:
       document.getElementById('content').innerHTML = 'error';
+      let contentTypes = getGlobalVariable('contentTypes');
+      location.hash = contentTypes.reverse()[0].name + '/all';      
     break;
   }
 }

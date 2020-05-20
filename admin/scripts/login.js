@@ -11,9 +11,10 @@ function doLogin( parentComponent ) {
     gitApiName = getGlobalVariable('appSettings');
 
     // invoke API class
-    window[gitApiName['API_Gate']](
+    new window[gitApiName['API_Gate']](
       getLocalStorage( 'secret'),
-      function(){
+      function(api_gateway){
+        setGlobalVariable( 'gitApi', api_gateway );
         document.getElementById('pageWrapper').classList.remove('hideLeftBar');
         routeToCall();
       },
