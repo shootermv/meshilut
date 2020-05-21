@@ -1,5 +1,8 @@
+* {
+  font-family:"Varela Round", sans-serif;
+}
 .inner {
-  max-width: 1200px;
+  max-width: 1100px;
   margin:0 auto;
 }
 
@@ -63,6 +66,8 @@
   font-family:"Noto Sans", Arial, sans-serif;
   font-size:15px;
   font-weight:400;
+  height: 100px;
+  padding-top: 10px;
   hyphens:manual;
   line-height:25.5px;
   margin-bottom:0px;
@@ -80,14 +85,19 @@
 }
 
 #logo {
-  float:right;
+  position: absolute;
+  right: 100px;
 }
 
 #head .inner {
   display: flex;
 }
 
-#head nav ul{ margin-bottom: 0; }
+#head nav ul{ 
+  margin-bottom: 0;
+  margin-right: 100px; 
+}
+
 #head nav {
   display: flex;
   flex: 1;
@@ -120,31 +130,19 @@
 }
 
 #head nav li {
-  border-bottom-width:0px;
-  border-left-width:0px;
-  border-right-width:0px;
-  border-top-width:0px;
+  border:0 none;
   box-sizing:border-box;
-  color:rgb(135, 135, 135);
   direction:rtl;
   display:block;
-  font-family:"Varela Round", sans-serif;
   font-size:15px;
-  font-weight:300;
-  height:90px;
+  height:50px;
   hyphens:manual;
   line-height:normal;
   list-style-image:none;
   list-style-position:outside;
   list-style-type:none;
-  margin-bottom:0px;
-  margin-left:50px;
-  margin-right:0px;
-  margin-top:0px;
-  padding-bottom:0px;
-  padding-left:0px;
-  padding-right:0px;
-  padding-top:0px;
+  margin:0px;
+  padding:10px 0 0;
   position:relative;
   text-align:right;
   text-size-adjust:100%;
@@ -172,16 +170,14 @@
   font-family:"Varela Round", sans-serif;
   font-size:15px;
   font-weight:300;
-  height:90px;
+  height:80px;
   hyphens:manual;
   line-height:20px;
   list-style-image:none;
   list-style-position:outside;
   list-style-type:none;
-  padding-bottom:35px;
   padding-left:0px;
   padding-right:0px;
-  padding-top:35px;
   position:relative;
   text-align:right;
   text-decoration-color:rgb(255, 255, 255);
@@ -198,23 +194,19 @@
   -webkit-box-direction:normal;
   -webkit-tap-highlight-color:rgba(0, 0, 0, 0);
 }
+#head nav a {
+  transition: 0.3s ease;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  padding: 10px 20px 20px;
+  padding-top: 30px;
+  height: 50px;
+}
 
-#head nav a:hover::after {
-  background-color:rgb(255, 255, 255);
-  bottom:0px;
-  box-sizing:border-box;
-  content:"";
-  display:block;
-  height:2px;
-  left:0px;
-  position:absolute;
-  transform:matrix(1, 0, 0, 1, 0, 0);
-  transition-delay:0s;
-  transition-duration:0.3s;
-  transition-property:all;
-  transition-timing-function:cubic-bezier(0.58, 0.3, 0.005, 1);
-  width:100%;
-  z-index:2;
+#head nav li:hover a {
+ /* border-top: 4px solid #ffffff;*/
+  border-bottom: 2px solid #ffffff;
+  padding-bottom: 35px;
 }
 
 .shape-fill {
@@ -250,7 +242,7 @@
   text-size-adjust:100%;
   transition-delay:0s, 0s, 0s, 0s;
   transition-duration:0.3s, 0.3s, 0.3s, 0.3s;
-  transition-property:background, border, border-radius, box-shadow;
+  transition-property: background, border, border-radius, box-shadow;
   transition-timing-function:ease, ease, ease, ease;
   width:100vw;
   -webkit-tap-highlight-color:rgba(0, 0, 0, 0);
@@ -438,4 +430,74 @@
   transform:matrix3d(-1, 0, -1.22465e-16, 0, 0, 1, 0, 0, 1.22465e-16, 0, -1, 0, -1449.2, 0, 0, 1);
   width: calc(260% + 1.3px);
   -webkit-tap-highlight-color:rgba(0, 0, 0, 0);
+}
+
+#mobileMenuToggle {
+  display: none;
+}
+
+@media only screen and  (max-width: 1200px){ 
+
+  #head .search-form {
+      display: none;
+  }
+  
+  #logo {
+    right: 50px;
+  }
+
+  #head nav ul {
+    margin-right: 125px;
+  }
+
+}
+
+@media only screen and  (max-width: 950px){ 
+  #head .searchLink ,
+  #head svg {
+      display: block;
+  }
+
+  #head nav ul {
+      margin:90px 0 0;
+      padding: 0;
+      width: 100%;
+  }
+
+  #head nav a , #head nav li {
+    width: 100%;
+    background: rgba(10,40,80,0.75);
+    border-bottom: 1px solid #fff;
+}
+
+  #head nav a {
+    padding: 0 36px 20px;
+    border-bottom: 1px solid #666;
+  }
+
+  #head nav li:hover a {
+    border-bottom: 1px solid #666;
+    padding-bottom: 20px;
+  }
+
+  #logo {
+    right: 22px;
+  }
+
+  #mobileMenuToggle {
+    position: absolute;
+    display: block;
+    left: 17px;
+    font-size: 50px;
+    color: #fff;
+    top: 24px;
+  }
+  
+  #head nav {
+    display: none;
+  }
+
+  #head nav.open {
+    display: block;
+  }
 }

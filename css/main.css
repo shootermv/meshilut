@@ -12,20 +12,7 @@
     color: #fff;
     display: none;
 }
-@media only screen and  (max-width: 1200px){ 
-    #head .search-form {
-        display: none;
-    }
 
-    #head .searchLink ,
-    #head svg {
-        display: block;
-    }
-
-    #head nav {
-        display: none;
-    }
-}
 #main section.title.about img, #main section.title.index img {
     margin-top: 40px;
     height: 190px;
@@ -85,29 +72,6 @@
   grid-template-columns: 1fr 1fr;
   max-width: 640px;
   grid-gap: 10px;
-}
-
-#main section.title {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 427px;
-    position: relative;
-    background:#111111;
-}
-
-#main section.title::after {
-    content: ' ';
-    display: block;
-    z-index: 1;
-    opacity: 0.3;
-    background: url(images/contact.png) center center ;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
 }
 
 #main h3, #main h2 {
