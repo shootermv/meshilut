@@ -7,16 +7,18 @@
  * @param {*} contentType 
  * @param {*} editId 
  */
-var editedItem = {};
+let editedItem = {};
+let itemFiles = []; 
 
 function contentItemForm ( parentElement, contentType , editId , op ) {
 
   // Get content type data description
   this.typeData = getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
-
+  
   /** load edit item if needed (item is kept between tabs) */
   if ( editedItem.id != editId || editedItem.type != contentType ) {
     editedItem = {};
+    itemFiles = [];
     if ( editId != 'new' ) {
       editedItem = dataStore[contentType].find( p => p.id == editId );
     }
@@ -141,6 +143,7 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
                 fileUploader.type="file";
                 fileUploader.onchange = function(event) {
                   let fileList = this.files;
+                  fileList[field.name] = field.name+'.'+fileList[0].name.split('.').pop();
                   let image = document.createElement("img");
                   image.src = window.URL.createObjectURL(fileList[0]);
                   image.setAttribute('style','max-width:200px;max-heigth:200px;');
@@ -149,9 +152,13 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
                   previewElement.appendChild(image);
       
                   var reader = new FileReader();
-                  reader.readAsText(fileList[0], "UTF-8");
+                  reader.readAsDataURL(fileList[0]);
                   reader.onload = function (evt) {
-                    // evt.target.result;
+                    itemFiles[field.name] = {
+                      "content": evt.target.result,
+                      "filePath": field.name+'.'+fileList[0].name.split('.').pop(),
+                      "encoding": "base64" 
+                    }
                   }
                 }
               break;
@@ -170,13 +177,27 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
       let submitButton = document.createElement('button');
       submitButton.className = 'submit';
       submitButton.innerText = 'שמור';
+
+      /**
+       * Submit item
+       */
       submitButton.onclick = function(){
         let APIconnect = getGlobalVariable('gitApi');
-        let files = [{
-          "content":  JSON.stringify(JSON.stringify(editedItem)),
-          "filePath": contentType+'/'+editId+'/index.json',
-          "encoding": "utf-8"
-        }];
+        let itemDir =  contentType+'/'+editId+'/';
+        
+        let files = [
+          {
+            "content":  JSON.stringify(editedItem),
+            "filePath": itemDir+'index.json',
+            "encoding": "utf-8" 
+          },
+        ];
+
+        Object.values(itemFiles).forEach(file=>{
+          file.filePath = itemDir+file.filePath;
+          files.push(file);
+        });
+        
         APIconnect.commitChanges('Save post: ' + editId, files);
       }
       submitButtons.appendChild(submitButton);
