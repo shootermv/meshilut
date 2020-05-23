@@ -154,10 +154,11 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
                   var reader = new FileReader();
                   reader.readAsDataURL(fileList[0]);
                   reader.onload = function (evt) {
+                    console.log(evt.target.result.replace(/([^,]+),/, ""));
                     itemFiles[field.name] = {
-                      "content": evt.target.result,
-                      "filePath": field.name+'.'+fileList[0].name.split('.').pop(),
-                      "encoding": "base64" 
+                      content: evt.target.result.replace(/([^,]+),/, ""),
+                      filePath: field.name+'.'+fileList[0].name.split('.').pop(),
+                      encoding: 'base64'
                     }
                   }
                 }
