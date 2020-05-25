@@ -144,23 +144,37 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
                 fileUploader.onchange = function(event) {
                   let fileList = this.files;
                   fileList[field.name] = field.name+'.'+fileList[0].name.split('.').pop();
-                  let image = document.createElement("img");
-                  image.src = window.URL.createObjectURL(fileList[0]);
-                  image.setAttribute('style','max-width:200px;max-heigth:200px;');
-                  let previewElement = this.parentElement.querySelector('.preview');
-                  previewElement.innerHTML = '';
-                  previewElement.appendChild(image);
-      
+
                   var reader = new FileReader();
-                  reader.readAsDataURL(fileList[0]);
+                  let previewElement = this.parentElement.querySelector('.preview');
+
                   reader.onload = function (evt) {
-                    console.log(evt.target.result.replace(/([^,]+),/, ""));
-                    itemFiles[field.name] = {
-                      content: evt.target.result.replace(/([^,]+),/, ""),
-                      filePath: field.name+'.'+fileList[0].name.split('.').pop(),
-                      encoding: 'base64'
-                    }
+                    // preview image
+                    let image = document.createElement("img");
+                    image.src = reader.result;
+                    image.setAttribute('style','max-width:200px;max-heigth:200px;');
+                    
+                    previewElement.innerHTML = '';
+                    previewElement.appendChild(image);
+                    editedItem[field.name] = reader.result;
                   }
+                  reader.readAsDataURL(fileList[0]);
+                  var r = new FileReader();
+                  r.onload = function(e) { 
+                    var contents = e.target.result;
+                    console.log();
+                    let files = [
+                      {
+                        "content":  window.btoa(window.atob((contents.replace(/^(.+,)/, '')))),
+                        "filePath": 'test/image.jpeg',
+                        "type": 'image',
+                        "encoding": false 
+                      },
+                    ];
+                    let APIconnect = getGlobalVariable('gitApi');
+                    APIconnect.commitChanges('test image', files);
+                  };
+                  r.readAsDataURL(fileList[0]);
                 }
               break;
             }
@@ -193,13 +207,37 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
             "encoding": "utf-8" 
           },
         ];
-
-        Object.values(itemFiles).forEach(file=>{
-          file.filePath = itemDir+file.filePath;
-          files.push(file);
+        // Use template for item page
+        fetch('templates/post.html')
+        .then(result=>{
+          return result.text();
+        })
+        .then( teplateText =>{
+          let templateVars = {
+            'item': editedItem    
+          } 
+          return new Function("return `"+teplateText +"`;").call(templateVars); 
+        }) 
+        .then(pageHTML=>{   
+          // wrap with page       
+          fetch('templates/base.html').then(baseResult=>{
+            return baseResult.text();
+          })
+          .then( baseTeplateText =>{
+            let templateVars = {
+              'content': pageHTML    
+            } 
+            return new Function("return `"+baseTeplateText +"`;").call(templateVars); 
+          }).then(fullPageHtml => {
+            files.push({
+              "content":  fullPageHtml,
+              "filePath": itemDir+'index.html',
+              "encoding": "utf-8" 
+            }, )
+            APIconnect.commitChanges('Save post: ' + editId, files);
+          });
+          
         });
-        
-        APIconnect.commitChanges('Save post: ' + editId, files);
       }
       submitButtons.appendChild(submitButton);
       submitButtons.appendChild(cancelButton);      

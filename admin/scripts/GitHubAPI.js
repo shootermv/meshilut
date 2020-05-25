@@ -2,25 +2,30 @@ function GitHubAPI (loginParams, onSuccess, onFailure) {
 
   // Init API Object
   let apiRefferance = this;
-
-  this.github = new Octokat({ 'token': loginParams.token });
-
-  this.github.repos('arielberg', 'meshilut').fetch()
-    .then(e=>{
-        this.repo = e;
-        return e.git.refs('heads/master').fetch();
+  
+  //'Basic ' + base64encode(username + ':' + password);
+        
+  fetch('https://api.github.com/repos/arielberg/meshilut/contents', {
+    method: 'GET', 
+    headers: new Headers({
+      'Authorization': "Token "+loginParams.token
     })
-    .then(e=>{
+  })
+  .then(response => {
+    if ( response.status != 200 ) {
+      console.log(response);
+      throw 'Bad Cradentials';
+    }
+    return response.json();
+  })
+  .then(e=>{
+        console.log(e);
         this.main = e;
-    })
+  })
     .then(r=>{
         onSuccess(apiRefferance);
     })
     .catch(exception=>{
-        if( exception.message.match(/\"message\": \"(.*)\"/).length > 0 ){
-          onFailure(exception.message.match(/\"message\": \"(.*)\"/)[1]);
-          return;
-        }
         onFailure( exception );
     });
     
@@ -29,16 +34,32 @@ function GitHubAPI (loginParams, onSuccess, onFailure) {
    * Add file to queue
    */
   this.addFile = async function( fileContent , filePath ) {
-    
-    let markdownFile = await this.repo.git.blobs.create(fileContent);
+    debugger;
+    let markdownFile;
+    switch( fileContent.type ) {
+        case 'image':
+          markdownFile = await this.repo.git.contents.create(fileContent);
 
-   return {
-      path: filePath,   
-      sha: markdownFile.sha,
-      mode: "100644",
-      type: "blob"
-    };
+          return {
+              path: filePath,   
+              sha: markdownFile.sha,
+              mode: "100644",
+              type: "blob"
+          };
+
+        case 'blob':
+        default:
+          markdownFile = await this.repo.git.blobs.create(fileContent);
+  
+          return {
+              path: filePath,   
+              sha: markdownFile.sha,
+              mode: "100644",
+              type: "blob"
+          };
+      }
   }
+
 
   this.commitChanges = function( commitMessage, files ) {
      
@@ -52,17 +73,18 @@ function GitHubAPI (loginParams, onSuccess, onFailure) {
         return this.addFile(fileDate, filePath);
       })
     )
+
     // call commit
     .then( filesTree =>{
       this.repo.git.trees.create({
         tree: filesTree,
         base_tree: this.main.object.sha
-      }).then(tree=>{
+      }).then( tree => {
         return this.repo.git.commits.create({
           message: commitMessage,
           tree: tree.sha,
-          parents: [this.main.object.sha]})
-      }).then(commit=>{
+          parents: [this.main.object.sha] })
+      }).then( commit => {
         this.main.update({sha: commit.sha});
       });
     });

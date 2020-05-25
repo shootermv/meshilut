@@ -36,14 +36,14 @@ function doLogin( parentComponent ) {
                                   <h3>התנועה למשילות - כניסה לממשק ניהול</h3>
                                   ${ errorMessage ? `<div class="alert alert-danger" role="alert">${errorMessage}</div>` : '' }
                                   <div><label>שם:</label><input name='name' type='text' placeholder='שם משתמש' /></div>
-                                  <div><label>סיסמא:</label><input name='token' type='text' placeholder='סיסמא' /></div>
+                                  <div><label>סיסמא:</label><input name='password' type='text' placeholder='סיסמא' /></div>
                                   <input type='submit' value='היכנס' />
                                 </form>`;
                               
     // form callback
     parentComponent.children[0].onsubmit = function(event) {  
       event.preventDefault();
-      setLocalStorage( 'secret', {'token':event.target.token.value });
+      setLocalStorage( 'secret', {'name':'event.target.name.value ','pass':event.target.password.value });
       createAPIObject();
     }
   }
