@@ -9,18 +9,18 @@
 let editedItem = {};
 let itemFiles = []; 
 
-function contentItemForm ( parentElement, contentType , editId , op ) {
+function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
   
   // Get content type data description
   let typeData = getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
   let appSettings = getGlobalVariable('appSettings');
   let siteUrl = appSettings['Site_Url'];
   /** load edit item if needed (item is kept between tabs) */
-  if ( editedItem.id != editId || editedItem.type != contentType ) {
+  if ( editedItem.id != requestedItemId || editedItem.type != contentType ) {
     editedItem = {};
     itemFiles = [];
-    if ( editId != 'new' ) {
-      editedItem = dataStore[contentType].find( p => p.id == editId );
+    if ( requestedItemId != 'new' ) {
+      editedItem = dataStore[contentType].find( p => p.id == requestedItemId );
     }
     // init to the default value
     typeData.fields.forEach(function(field){
@@ -30,7 +30,7 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
     });
 
     editedItem.type = contentType;
-    editedItem.id = editId;
+    editedItem.id = requestedItemId;
   }
   let getItemURL = function( absoluteURL ){
     return (absoluteURL?siteUrl: '' ) + typeData.urlPrefix + editedItem.id;
@@ -55,7 +55,7 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
   }
 
   // Build node tabs
-  let baseURL = '#' + contentType + '/' + ( editId ? editId : 'new' ) + '/';
+  let baseURL = '#' + contentType + '/' + ( requestedItemId ? requestedItemId : 'new' ) + '/';
   let links = [{ 'op':'edit', 'label':'עריכה' }];
   if ( true ) { // TODO: check i18n support
     links.push({ 'op':'en', 'label':'תרגום' });
@@ -122,7 +122,7 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
                 let idInput = document.createElement('input');
                 idInput.value = editedItem.id;
                 idInput.onkeyup = v => {
-                    editedItem.id = siteUrl+v.target.value;
+                    editedItem.id = v.target.value;
                     urlPreview.innerText =  getItemURL(true);
                 };
                 fieldDiv.appendChild(idInput);
@@ -207,7 +207,7 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
         let files = [
           {
             "content":  JSON.stringify(editedItem),
-            "filePath": getItemURL(false)+'index.json',
+            "filePath": getItemURL(false)+'/index.json',
             "encoding": "utf-8" 
           },
         ];
@@ -228,13 +228,14 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
               return baseResult.text();
             }).then( baseTeplateText =>{
                   let templateVars = {
-                    'content': pageHTML    
+                    'content': pageHTML,
+                    'site_url':siteUrl 
                   } 
                   return new Function("return `"+baseTeplateText +"`;").call(templateVars); 
                 }).then(fullPageHtml => {
                   files.push({
                     "content":  fullPageHtml,
-                    "filePath": getItemURL(false)+'index.html',
+                    "filePath": getItemURL(false)+'/index.html',
                     "encoding": "utf-8" 
                   });
                   return true;
@@ -244,12 +245,12 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
           Object.keys(itemFiles).forEach(fieldName => {
             files.push({
               "content":  itemFiles[fieldName],
-              "filePath": getItemURL(false)+editedItem[fieldName],
+              "filePath": getItemURL(false)+'/'+editedItem[fieldName],
               "encoding": "base64" 
             });
           })
           let APIconnect = getGlobalVariable('gitApi');
-          APIconnect.commitChanges('Save '+ contentType +': ' + editId, files)
+          APIconnect.commitChanges('Save '+ contentType +': ' + editedItem.id , files)
                     .then(res=>{
                       console.log('done',res);
                     });
