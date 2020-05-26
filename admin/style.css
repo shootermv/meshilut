@@ -156,4 +156,17 @@ h1 {
   .loginForm input[name=token] {
     width: 365px;
   }
-  
+
+  .form-element.id label {
+    display: inline-block
+  }
+
+  .form-element.id input {
+    background-color: transparent;
+    padding-right: 10px;
+    border: 0 none;
+  }
+
+  .siteUrlPreview {
+    display: block;
+  }

@@ -8,10 +8,10 @@ function doLogin( parentComponent ) {
    * When secret exists. Creates the GitAPI Object
    */
   this.createAPIObject = function() {
-    gitApiName = getGlobalVariable('appSettings');
+    let appSettings = getGlobalVariable('appSettings');
 
     // invoke API class
-    new window[gitApiName['API_Gate']](
+    new window[appSettings['API_Gate']](
       getLocalStorage( 'secret'),
       function(api_gateway){
         setGlobalVariable( 'gitApi', api_gateway );
@@ -43,7 +43,7 @@ function doLogin( parentComponent ) {
     // form callback
     parentComponent.children[0].onsubmit = function(event) {  
       event.preventDefault();
-      setLocalStorage( 'secret', {'name':'event.target.name.value ','pass':event.target.password.value });
+      setLocalStorage( 'secret', {'name':'event.target.name.value ','token':event.target.password.value });
       createAPIObject();
     }
   }

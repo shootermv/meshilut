@@ -3,18 +3,18 @@
  * 
  * TODO: Split to sub-functions
  * TODO: Support generic i18n
- * 
- * @param {*} contentType 
- * @param {*} editId 
+ * TODO: Show revisions
  */
+
 let editedItem = {};
 let itemFiles = []; 
 
 function contentItemForm ( parentElement, contentType , editId , op ) {
-
-  // Get content type data description
-  this.typeData = getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
   
+  // Get content type data description
+  let typeData = getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
+  let appSettings = getGlobalVariable('appSettings');
+  let siteUrl = appSettings['Site_Url'];
   /** load edit item if needed (item is kept between tabs) */
   if ( editedItem.id != editId || editedItem.type != contentType ) {
     editedItem = {};
@@ -23,7 +23,7 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
       editedItem = dataStore[contentType].find( p => p.id == editId );
     }
     // init to the default value
-    this.typeData.fields.forEach(function(field){
+    typeData.fields.forEach(function(field){
       if ( field.defaultValue && !editedItem[field.name]){
         editedItem[field.name] = field.defaultValue ;
       }
@@ -32,7 +32,10 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
     editedItem.type = contentType;
     editedItem.id = editId;
   }
-  
+  let getItemURL = function( absoluteURL ){
+    return (absoluteURL?siteUrl: '' ) + typeData.urlPrefix + editedItem.id;
+  };
+
   this.handleSubmit = function(event) {    
     event.preventDefault();
     let postData =  this.state;
@@ -79,10 +82,13 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
     case 'en':  
     case 'seo':
       // Set Fields By OP type
-      let formFields = this.typeData.fields;
+      let formFields =  JSON.parse(JSON.stringify(typeData.fields));
       switch( op ) {
+        case 'edit':
+          formFields.unshift({name: "id", label: "מזהה", type: "id"});
+        break;
         case 'en':
-          formFields = JSON.parse(JSON.stringify(formFields.filter( f=>f.i18n!==false )));
+          formFields = formFields.filter( f=>f.i18n!==false );
           formFields.forEach( f => f.name = op+'_'+f.name );
         break;
         case 'seo':
@@ -90,26 +96,41 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
         break;
       }
 
-      parentElement.innerHTML = `<h1>עריכת ${this.typeData.label}</h1>
+      parentElement.innerHTML = `<h1>עריכת ${typeData.label}</h1>
       <ul class="nav nav-tabs">
         ${ links.map(field=>
           `<li class="nav-item">
             <a class="nav-link ${ field.op==op ? 'active' : '' }" href='${baseURL+field.op}'>${field.label}</a>
           </li>`).join('') }
       </ul>`;
-      if( editedItem.id !='new') {
-        parentElement.innerHTML +=  `<div><span>מזהה:</span><span>${ editedItem.id }</span></div>`;
-      }
+      
 
       let form = document.createElement('form');
+      
       parentElement.appendChild(form);
       formFields.forEach( function(field) {
             let fieldDiv = document.createElement('div');
+            fieldDiv.classList.add('form-element');
+            fieldDiv.classList.add(field.type);
+            
             form.appendChild(fieldDiv);
             
             fieldDiv.innerHTML = `<label>${ field.label }</label>`;
 
             switch(field.type){
+              case 'id': 
+                let idInput = document.createElement('input');
+                idInput.value = editedItem.id;
+                idInput.onkeyup = v => {
+                    editedItem.id = siteUrl+v.target.value;
+                    urlPreview.innerText =  getItemURL(true);
+                };
+                fieldDiv.appendChild(idInput);
+                let urlPreview = document.createElement('span');
+                urlPreview.className = 'siteUrlPreview'
+                urlPreview.innerText =  getItemURL(true);
+                fieldDiv.appendChild(urlPreview);
+              break;
               case 'wysiwyg':
               case 'textfield':
                 let textarea = document.createElement('textarea');
@@ -142,43 +163,27 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
                 fileUploader.name= field.name;
                 fileUploader.type="file";
                 fileUploader.onchange = function(event) {
-                  let fileList = this.files;
-                  fileList[field.name] = field.name+'.'+fileList[0].name.split('.').pop();
 
+                  editedItem[field.name] = field.name+'.'+this.files[0].name.split('.').pop();
                   var reader = new FileReader();
                   let previewElement = this.parentElement.querySelector('.preview');
+                  previewElement.innerHTML = '';
 
                   reader.onload = function (evt) {
+                    var contents = reader.result;
+                    itemFiles[field.name] =  contents.substr(contents.indexOf(',') + 1); 
+
                     // preview image
                     let image = document.createElement("img");
-                    image.src = reader.result;
-                    image.setAttribute('style','max-width:200px;max-heigth:200px;');
+                    image.src = contents;
+                    image.setAttribute('style','max-width:200px;max-heigth:200px;'); 
                     
-                    previewElement.innerHTML = '';
                     previewElement.appendChild(image);
-                    editedItem[field.name] = reader.result;
                   }
-                  reader.readAsDataURL(fileList[0]);
-                  var r = new FileReader();
-                  r.onload = function(e) { 
-                    var contents = e.target.result;
-                    console.log();
-                    let files = [
-                      {
-                        "content":  window.btoa(window.atob((contents.replace(/^(.+,)/, '')))),
-                        "filePath": 'test/image.jpeg',
-                        "type": 'image',
-                        "encoding": false 
-                      },
-                    ];
-                    let APIconnect = getGlobalVariable('gitApi');
-                    APIconnect.commitChanges('test image', files);
-                  };
-                  r.readAsDataURL(fileList[0]);
+                  reader.readAsDataURL(this.files[0]);
                 }
               break;
-            }
-            
+            }            
       });
       let submitButtons = document.createElement('div');
       let cancelButton = document.createElement('button');
@@ -197,46 +202,57 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
        * Submit item
        */
       submitButton.onclick = function(){
-        let APIconnect = getGlobalVariable('gitApi');
-        let itemDir =  contentType+'/'+editId+'/';
-        
+              
+        // Object JSON file 
         let files = [
           {
             "content":  JSON.stringify(editedItem),
-            "filePath": itemDir+'index.json',
+            "filePath": getItemURL(false)+'index.json',
             "encoding": "utf-8" 
           },
         ];
         // Use template for item page
         fetch('templates/post.html')
-        .then(result=>{
-          return result.text();
-        })
-        .then( teplateText =>{
-          let templateVars = {
-            'item': editedItem    
-          } 
-          return new Function("return `"+teplateText +"`;").call(templateVars); 
-        }) 
-        .then(pageHTML=>{   
-          // wrap with page       
-          fetch('templates/base.html').then(baseResult=>{
-            return baseResult.text();
+          .then(result=>{
+            return result.text();
           })
-          .then( baseTeplateText =>{
+          .then( teplateText =>{
             let templateVars = {
-              'content': pageHTML    
+              'item': editedItem    
             } 
-            return new Function("return `"+baseTeplateText +"`;").call(templateVars); 
-          }).then(fullPageHtml => {
+            return new Function("return `"+teplateText +"`;").call(templateVars); 
+          }) 
+          .then(pageHTML=>{   
+            // wrap with page       
+            return fetch('templates/base.html').then(baseResult=>{
+              return baseResult.text();
+            }).then( baseTeplateText =>{
+                  let templateVars = {
+                    'content': pageHTML    
+                  } 
+                  return new Function("return `"+baseTeplateText +"`;").call(templateVars); 
+                }).then(fullPageHtml => {
+                  files.push({
+                    "content":  fullPageHtml,
+                    "filePath": getItemURL(false)+'index.html',
+                    "encoding": "utf-8" 
+                  });
+                  return true;
+                
+            });          
+        }).then( status=>{ // prepare commit 
+          Object.keys(itemFiles).forEach(fieldName => {
             files.push({
-              "content":  fullPageHtml,
-              "filePath": itemDir+'index.html',
-              "encoding": "utf-8" 
-            }, )
-            APIconnect.commitChanges('Save post: ' + editId, files);
-          });
-          
+              "content":  itemFiles[fieldName],
+              "filePath": getItemURL(false)+editedItem[fieldName],
+              "encoding": "base64" 
+            });
+          })
+          let APIconnect = getGlobalVariable('gitApi');
+          APIconnect.commitChanges('Save '+ contentType +': ' + editId, files)
+                    .then(res=>{
+                      console.log('done',res);
+                    });
         });
       }
       submitButtons.appendChild(submitButton);
@@ -257,7 +273,7 @@ function contentItemForm ( parentElement, contentType , editId , op ) {
 function contentList( parentElement, contentType ) {
   let dataStore = getGlobalVariable('dataStore');
   if( dataStore[contentType] == null ) { dataStore[contentType] = []; }
-  this.typeData = getGlobalVariable('contentTypes').find(ty=>ty.name==contentType);
+  let typeData = getGlobalVariable('contentTypes').find(ty=>ty.name==contentType);
   let innerHTML = '';
   if ( dataStore[contentType].length == 0 ) {
     innerHTML = `אין פריטים`;
@@ -280,7 +296,7 @@ function contentList( parentElement, contentType ) {
       </table>`;
   }
   parentElement.innerHTML = `<div>
-      <h1>${ this.typeData.labelPlural }</h1>
+      <h1>${ typeData.labelPlural }</h1>
       ${ innerHTML }
     </div>`;
 }

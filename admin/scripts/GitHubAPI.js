@@ -3,90 +3,79 @@ function GitHubAPI (loginParams, onSuccess, onFailure) {
   // Init API Object
   let apiRefferance = this;
   
-  //'Basic ' + base64encode(username + ':' + password);
-        
-  fetch('https://api.github.com/repos/arielberg/meshilut/contents', {
-    method: 'GET', 
-    headers: new Headers({
-      'Authorization': "Token "+loginParams.token
+  // doLogin: 
+  // TODO:
+  // 1. Refactor this class
+  // 2. Error handeling
+
+  let octo = new Octokat({ 'token': loginParams.token });
+  let repo = octo.repos('arielberg', 'meshilut');
+
+  repo.fetch()
+    .then(e=>{
+        repo = e;
+        return e.git.refs('heads/master').fetch();
     })
-  })
-  .then(response => {
-    if ( response.status != 200 ) {
-      console.log(response);
-      throw 'Bad Cradentials';
-    }
-    return response.json();
-  })
-  .then(e=>{
-        console.log(e);
+    .then(e=>{
         this.main = e;
-  })
+    })
     .then(r=>{
         onSuccess(apiRefferance);
     })
     .catch(exception=>{
+        if( exception.message.match(/\"message\": \"(.*)\"/).length > 0 ){
+          onFailure(exception.message.match(/\"message\": \"(.*)\"/)[1]);
+          return;
+        }
         onFailure( exception );
     });
-    
-  
-  /**
-   * Add file to queue
-   */
-  this.addFile = async function( fileContent , filePath ) {
-    debugger;
-    let markdownFile;
-    switch( fileContent.type ) {
-        case 'image':
-          markdownFile = await this.repo.git.contents.create(fileContent);
 
-          return {
-              path: filePath,   
-              sha: markdownFile.sha,
-              mode: "100644",
-              type: "blob"
-          };
 
-        case 'blob':
-        default:
-          markdownFile = await this.repo.git.blobs.create(fileContent);
   
-          return {
-              path: filePath,   
-              sha: markdownFile.sha,
-              mode: "100644",
-              type: "blob"
-          };
-      }
+  function createBlob( path, content, encoding ) {
+    return repo.git.blobs
+        .create({ content: content, encoding: encoding, })
+        .then(createdBlob => {
+            console.log('blob created for '+ path);
+            return { path: path,   
+                     sha: createdBlob.sha,
+                     mode: "100644",
+                     type: "blob" }
+        });
   }
 
 
-  this.commitChanges = function( commitMessage, files ) {
-     
-    let treeItems = [];   
+  /**
+   * Todo: better support blob for binary files 
+   */
+  this.commitChanges = async function( commitMessage, files ) {
 
-    // builf files
-    Promise.all(
-      files.map( fileDate => {
-        let filePath = fileDate.filePath;
-        delete fileDate.filePath;
-        return this.addFile(fileDate, filePath);
-      })
-    )
-
-    // call commit
-    .then( filesTree =>{
-      this.repo.git.trees.create({
-        tree: filesTree,
-        base_tree: this.main.object.sha
-      }).then( tree => {
-        return this.repo.git.commits.create({
-          message: commitMessage,
-          tree: tree.sha,
-          parents: [this.main.object.sha] })
-      }).then( commit => {
-        this.main.update({sha: commit.sha});
-      });
-    });
+    return repo.git
+        .refs('heads/master').fetch()
+        .then(main=> {
+         
+          // build files
+          return  Promise.all(
+                    files.map( fileData => {
+                      return createBlob( fileData.filePath, fileData.content , fileData.encoding);
+                    })
+                  )
+                 // call commit
+                .then( filesTree =>{
+                  console.log('commit start - build tree');
+                    repo.git.trees.create({
+                      tree: filesTree,
+                      base_tree: main.object.sha
+                    }).then( tree => {
+                      return repo.git.commits.create({
+                        message: commitMessage,
+                        tree: tree.sha,
+                        parents: [this.main.object.sha] })
+                    }).then( commit => {
+                      console.log('tree has been added');
+                      return this.main.update({sha: commit.sha});
+                    });
+                  });
+       })
   }
 }
