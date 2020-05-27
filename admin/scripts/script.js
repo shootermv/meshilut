@@ -72,9 +72,6 @@ function routeToCall(){
     case !getGlobalVariable('gitApi'):
       doLogin(document.getElementById('content'));
     break;
-    case !getGlobalVariable('dataStore'):
-      loadSystemFile( 'dataStore', '../dataStore.json' , routeToCall, routeToCall );
-    break;
     case !getGlobalVariable('SEOFields'):
       loadSystemFile( 'SEOFields', './SEOFields.json' , routeToCall, routeToCall );
     break;

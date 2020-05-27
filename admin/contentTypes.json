@@ -1,15 +1,5 @@
 [
     {  
-        "name":"page",
-        "label":"דף תוכן",
-        "urlPrefix":"",
-        "labelPlural":"דפי תוכן",
-        "fields":[
-            {"name":"title","label":"כותרת","type":"textfield"},
-            {"name":"body","label":"תוכן","type":"wysiwyg"}
-        ]
-    },
-    {  
         "name":"post",
         "label":"כתבה",
         "labelPlural":"כתבות",
