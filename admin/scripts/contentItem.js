@@ -194,7 +194,8 @@ function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
         cancelButton.className = 'cancel';
         cancelButton.onclick = function(){
           if( confirm('האם אתה בטוח?') ) {
-            alert('ok');
+            localStorage.removeItem(editedItem.type+'/'+requestedItemId);
+            gotoItemsList();
           }
         }
         let submitButton = document.createElement('button');
@@ -210,10 +211,19 @@ function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
         form.appendChild(submitButtons);
 
         form.onsubmit = function(event){
+          submitButtons.disabled = true; 
           event.preventDefault();
         }
       break;
     }
+    
+  }
+
+  /**
+   * Close edit page (navigate to content type list)
+   */
+  let gotoItemsList = function() {
+    location.hash = contentType+'/all';
   }
 
   /**
@@ -229,99 +239,112 @@ function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
         "encoding": "utf-8" 
       },
     ];
-    let jsonSearchableFile = 'search/'+contentType+'.json';
 
     /*** index.html ***/
-    // Use template for item page
-    fetch('templates/genericInner.html')
-    .then(result=>{
-        return result.text();
+    // TODO: Take laguages from settings...
+    renderPageHTML(['', 'en'])
+    .then(htmlFiles=>{ 
+      return files.concat(htmlFiles); 
     })
-    .then( teplateText =>{
-      let templateVars = {
-        'item': editedItem    
-      } 
-      return new Function("return `"+teplateText +"`;").call(templateVars); 
-    }) 
-    .then(pageHTML=>{   
-      // wrap with page       
-      return fetch('templates/base.html').then(baseResult=>{
-        return baseResult.text();
-      }).then( baseTeplateText =>{
-            let templateVars = {
-              'content': pageHTML,
-              'site_url':siteUrl 
-            } 
-            return new Function("return `"+baseTeplateText +"`;").call(templateVars); 
-          }).then(fullPageHtml => {
-            files.push({
-              "content":  fullPageHtml,
-              "filePath": getItemURL(false)+'/index.html',
-              "encoding": "utf-8" 
-            });
-            return true;
-          
-      });          
-    })
-    /*** static files  ***/
-    .then( status=>{ // prepare commit 
-      Object.keys(editedItem.files).forEach(fieldName => {
-        files.push({
+    /*** Add Attachments ***/
+    .then( files => {
+      if ( editedItem.files.length == 0 )  return files;
+      let attachments = Object.keys(editedItem.files).map( fieldName => ({
           "content":  editedItem.files[fieldName],
-          "filePath": getItemURL(false)+'/'+editedItem[fieldName],
+          "filePath": editedItem[fieldName],
           "encoding": "base64" 
-        });
+      }));
+      return files.concat(attachments);
+    })
+    /*** Update Searchable List ***/ 
+    .then( files => {
+      return getUpdatedSearchFile('search/'+contentType+'.json').then( searchFiles => {
+        return  files.concat(searchFiles);
       })
     })
-    // search json
-    .then( res=> fetch(jsonSearchableFile))
-    .then( searchableJSONResponse => { 
-      return searchableJSONResponse.json();
-    })
-    .catch( exeption=> {
-      return [];
-    })
-    .then(searchableJSON =>{
-      var indexedItem = {};
-      indexedItem.id = editedItem.id;
-      indexedItem.title = editedItem.title;
-
-      typeData.fields
-              .filter(f=>{
-                return f.type != 'file';
-              })
-              .filter(f=>{
-                return ['id','name'].indexOf(f.name)==-1;
-              })
-              .filter(f=>{
-                return editedItem[f.name] != null;
-              })
-              .forEach(f=>{
-                indexedItem.text += editedItem[f.name].replace(/(<([^>]+)>)/ig,"");
-              });
-
-      searchableJSON.push(indexedItem);
-
-      files.push({
-        "content": JSON.stringify(searchableJSON),
-        "filePath": jsonSearchableFile,
-        "encoding": "utf-8"
-      })
-    })
+    
     /*** invoke API  ***/
-    .then( res=>{
-      let APIconnect = getGlobalVariable('gitApi');
+    .then( files =>{
       console.log(files);
+      let APIconnect = getGlobalVariable('gitApi');
       return APIconnect.commitChanges('Save '+ contentType +': ' + editedItem.id , files)            
     })
     .then( res=>{
-      console.log('done',res);
-      window.hash = contentType+'/all';
+      gotoItemsList();
     });
   }
-  
-  let renderHTML = function( languageCode  ) {
 
+  /**
+   * 
+   * @param {*} filePath 
+   */
+  let getUpdatedSearchFile = function ( filePath ) {
+    return fetch(filePath )
+            .then( response => searchableJSONResponse.json() )
+            .catch( exeption=> [] )
+            .then( fileJson => {
+              var indexedItem = {};
+              indexedItem.id = editedItem.id;
+              indexedItem.title = editedItem.title;
+              indexedItem.body = getSearchableString();
+              
+              fileJson.push(indexedItem);
+
+              return [{
+                "content": JSON.stringify(fileJson),
+                "filePath": filePath,
+                "encoding": "utf-8"
+              }];
+            });
+  }
+
+  let getSearchableString = function() {
+    return typeData.fields
+            .filter(f => f.type != 'file')
+            .filter(f=> ['id','name'].indexOf(f.name) )
+            .filter(f=> editedItem[f.name] )
+            .map(f => editedItem[f.name].replace(/(<([^>]+)>)/ig," "))
+            .join(' ');
+  }
+
+  let renderPageHTML = async function( languages ) {
+    return Promise.all([
+      fetch('templates/base.html').then(result=> result.text()),
+      fetch('templates/genericInner.html').then(result=> result.text()),
+    ])
+    .then( templates =>{
+      return Promise.all( languages.map( language =>{
+        if(language!='') {
+          let translatedObject = { 
+            id:editedItem.id, 
+            files: editedItem.files 
+          };
+          typeData.fields.forEach( f => { 
+            if( f.i18n === false ) {
+              translatedObject[f.name] = editedItem[f.name]
+            }
+            else {
+              translatedObject[f.name] = editedItem[language+'_'+f.name]
+            }
+          }); 
+          editedItem = translatedObject;
+          console.log(editedItem);
+          debugger;
+        }
+
+        let templateVars = {
+            'item': editedItem,
+            'site_url':siteUrl
+        } ;
+        templateVars.content = new Function("return `"+templates[1] +"`;").call(templateVars); 
+         
+        return {
+          "content":  new Function("return `"+templates[0] +"`;").call(templateVars),
+          "filePath": (language!=''?language+'/':'')+getItemURL(false)+'/index.html',
+          "encoding": "utf-8" 
+        }
+      }));
+    }) 
   }
 
   // load item & render form

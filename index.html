@@ -2,12 +2,12 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" type="text/css" href="css/style.css">
-        <link rel="stylesheet" type="text/css" href="css/main.css">
-        <link rel="stylesheet" type="text/css" href="css/index.css">
-        <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css" media="all">
-        <link rel="stylesheet" type="text/css" href="css/font-awesome.all.min.css" media="all"> 
-        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" media="all">
+        <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+        <link rel="stylesheet" type="text/css" href="assets/css/main.css">
+        <link rel="stylesheet" type="text/css" href="assets/css/index.css">
+        <link rel="stylesheet" type="text/css" href="assets/css/font-awesome.min.css" media="all">
+        <link rel="stylesheet" type="text/css" href="assets/css/font-awesome.all.min.css" media="all"> 
+        <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css" media="all">
 
         <link rel="stylesheet" id="google-fonts-1-css" href="https://fonts.googleapis.com/css?family=Varela+Round%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic%7CHeebo%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic%7CAmatic+SC%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic%7CPT+Sans%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic%7CRoboto%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic%7CMontserrat%3A100%2C100italic%2C200%2C200italic%2C300%2C300italic%2C400%2C400italic%2C500%2C500italic%2C600%2C600italic%2C700%2C700italic%2C800%2C800italic%2C900%2C900italic&amp;subset=hebrew&amp;ver=5.3" type="text/css" media="all">
         
@@ -19,7 +19,7 @@
         <div class="inner">
             <div id="logo">
                 <a href="/">
-                    <img width="120px" src="/images/logo.png" />
+                    <img width="120px" src="/assets/images/logo.png" />
                 </a>
             </div>
             <nav
@@ -62,19 +62,19 @@
     </header>
            <main id="main">
                 <section class="title index">
-                    <img src="images/logo.png"/> 
-                    <div class="shape-bottom">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 283.5 19.6" preserveAspectRatio="none" data-negative="false">
-                            <path class="shape-fill" style="opacity:0.33" d="M0 0L0 18.8 141.8 4.1 283.5 18.8 283.5 0z"></path>
-                            <path class="shape-fill" style="opacity:0.33" d="M0 0L0 12.6 141.8 4 283.5 12.6 283.5 0z"></path>
-                            <path class="shape-fill" style="opacity:0.33" d="M0 0L0 6.4 141.8 4 283.5 6.4 283.5 0z"></path>
-                            <path class="shape-fill" d="M0 0L0 1.2 141.8 4 283.5 1.2 283.5 0z"></path>
-                    </svg>		
-                    </div>
                     <video autoplay muted loop id="myVideo" class="video-bgr">
-                        <source src="images/videoplayback.mp4" type="video/mp4">
+                        <source src="/assets/images/videoplayback.mp4" type="video/mp4">
                         Your browser does not support HTML5 video.
-                    </video>          
+                    </video> 
+                    <img src="/assets/images/logo.png"/> 
+                   
+                    <svg class="shape-bottom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 283.5 19.6" preserveAspectRatio="none" data-negative="false">
+                        <path class="shape-fill" style="opacity:0.33" d="M0 0L0 18.8 141.8 4.1 283.5 18.8 283.5 0z"></path>
+                        <path class="shape-fill" style="opacity:0.33" d="M0 0L0 12.6 141.8 4 283.5 12.6 283.5 0z"></path>
+                        <path class="shape-fill" style="opacity:0.33" d="M0 0L0 6.4 141.8 4 283.5 6.4 283.5 0z"></path>
+                        <path class="shape-fill" d="M0 0L0 1.2 141.8 4 283.5 1.2 283.5 0z"></path>
+                    </svg>
+                             
                 </section>
 
     <section class="summary-section">
@@ -96,32 +96,32 @@
     </section>
 
     <section class="motives">
-          
         <div class="inner">
-         
-         <h4>המניעים שלנו​</h4>
-         <p>
-             בשנים האחרונות היטשטשו הגבולות בין המערכת המשפטית על שלוחותיה השונות לבין סמכות נבחרי הציבור. המערכת המשפטית החלה לעסוק בהכרעות ערכיות, מוסריות ופוליטיות דבר יום ביומו. כוחם של נושאי תפקידים במערכת המשפט גובר לעיתים על כוחן של הממשלה והכנסת ונבחרי הציבור מוצאים את עצמם מנועים מלקדם ולבצע את המדיניות שלשמה נבחרו.               
-         </p>
-       
-         <p>
-             ריכוז גדול מדי של עוצמה וסמכויות בידי המערכת המשפטית פוגע בעקרון הפרדת הרשויות ועלול להביא לפגיעה בטוהר המידות ובמינהל התקין של מערכות המדינה.
-         </p>
+            <div class='col1'>
+            <h4>המניעים שלנו​</h4>
+            <p>
+                בשנים האחרונות היטשטשו הגבולות בין המערכת המשפטית על שלוחותיה השונות לבין סמכות נבחרי הציבור. המערכת המשפטית החלה לעסוק בהכרעות ערכיות, מוסריות ופוליטיות דבר יום ביומו. כוחם של נושאי תפקידים במערכת המשפט גובר לעיתים על כוחן של הממשלה והכנסת ונבחרי הציבור מוצאים את עצמם מנועים מלקדם ולבצע את המדיניות שלשמה נבחרו.               
+            </p>
+        
+            <p>
+                ריכוז גדול מדי של עוצמה וסמכויות בידי המערכת המשפטית פוגע בעקרון הפרדת הרשויות ועלול להביא לפגיעה בטוהר המידות ובמינהל התקין של מערכות המדינה.
+            </p>
 
 
-         <h4>החזון שלנו</h4>
-         <p>
-             אנו סבורים כי מדינת ישראל זקוקה למערכת משפטית איתנה ואיכותית אשר עושה מלאכתה נאמנה.
+            <h4>החזון שלנו</h4>
+            <p>
+                אנו סבורים כי מדינת ישראל זקוקה למערכת משפטית איתנה ואיכותית אשר עושה מלאכתה נאמנה.
 
-             אנו פועלים לחיזוק המשילות ומנסים להשיב את מערכת המשפט למקומה הראוי תוך מתן כח לנבחרי הציבור לקיים מדיניות המשקפת את רצון בוחריהם, העם  במדינת ישראל.
-             
-             התנועה עוסקת בשמירת האיזונים בין מרכיבי הדמוקרטיה השונים במדינת ישראל: הכרעת הרוב, זכויות הפרט, הגינות שלטונית ושקיפות.
-         </p>
+                אנו פועלים לחיזוק המשילות ומנסים להשיב את מערכת המשפט למקומה הראוי תוך מתן כח לנבחרי הציבור לקיים מדיניות המשקפת את רצון בוחריהם, העם  במדינת ישראל.
+                
+                התנועה עוסקת בשמירת האיזונים בין מרכיבי הדמוקרטיה השונים במדינת ישראל: הכרעת הרוב, זכויות הפרט, הגינות שלטונית ושקיפות.
+            </p>
         </div>
-        <div class="img-wrap">
-            <img src="images/motives.jpg" alt=""/> 
-            <img src="images/motives2.jpg" alt=""/> 
+        <div class="img-wrap col2">
+            <img src="/assets/images/motives.jpg" alt=""/> 
+            <img src="/assets/images/motives2.jpg" alt=""/> 
         </div>
+    </div>
                 
      </section>
      
@@ -177,10 +177,12 @@
     </section>
 
     <footer>     
-        <h3 class="size-large">“העולם כולו וכל בני-האדם בו הם עניינם של כולם” </h3>		
-        <div class="spacer"></div>
-        <div class="author">
-            ויליאם סארויאן
+        <div class="inner">
+            <h3 class="size-large">“העולם כולו וכל בני-האדם בו הם עניינם של כולם” </h3>		
+            <div class="spacer"></div>
+            <div class="author">
+                ויליאם סארויאן
+            </div>
         </div>
     </footer>         
 </main>

@@ -84,18 +84,13 @@
   width: 100vw;
 }
 
-#logo {
-  position: absolute;
-  right: 100px;
-}
-
 #head .inner {
   display: flex;
 }
 
 #head nav ul{ 
   margin-bottom: 0;
-  margin-right: 100px; 
+  margin-right: 0; 
 }
 
 #head nav {
@@ -443,16 +438,13 @@
   }
   
   #logo {
-    right: 50px;
+    margin-right: 18px;
   }
-
-  #head nav ul {
-    margin-right: 125px;
-  }
-
+  
 }
 
 @media only screen and  (max-width: 950px){ 
+
   #head .searchLink ,
   #head svg {
       display: block;

@@ -1,4 +1,13 @@
 
+:root {
+    --page-inner-width:1100px; 
+}
+
+.inner {
+    width:var(--page-inner-width);
+    margin:0 auto;
+}
+
 #main section.title {
     display: flex;
     flex-direction: column;
@@ -30,6 +39,7 @@
 #main section.title.index {
     background: none;
     position: relative;
+    overflow: hidden;
 }
 
 #main section.title.index .video-bgr {
@@ -45,6 +55,8 @@
     transform: rotate(180deg);
     width: 100%;
     flex: 1;
+    position: relative;
+    top: 20px;
 }
 
 #main section.summary-section {
@@ -79,7 +91,7 @@
     display: block;
     z-index: 1;
     opacity: 0.3;
-    background: url(/images/FP_BlockBG.png) center center;
+    background: url(/assets/images/FP_BlockBG.png) center center;
     opacity: 0.15;
     position: absolute;
     left: 0;
@@ -143,19 +155,24 @@
   margin: 20px 130px 0 0;
 }
 
-#main section.motives .inner {
-    width: 400px;
-    margin-right: 200px;
+#main section.motives .col1 {
+    width: 500px;
+    margin-left: 20px;
+    display: inline-block;;
+}
+#main section.motives .col2 {
+    display: inline-block;
+    max-width: 500px;
 }
 
-#main section.motives .inner h4 {
+#main section.motives h4 {
     color: #00dafc;
     font-family: "Heebo", Sans-serif;
     font-size: 20px;
     font-weight: 300;
 }
 
-#main section.motives .inner p {
+#main section.motives p {
     color: #3d4459;
     font-family: "Heebo", Sans-serif;
     font-size: 16px;
