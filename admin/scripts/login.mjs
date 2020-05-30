@@ -1,26 +1,28 @@
+import * as main from './script.mjs'; 
+
 /**
  * Handle login ( using GIT credentials )
  * Currently only GitHub is supported.
  */
-function doLogin( parentComponent ) {
+export function doLogin( parentComponent ) {
 
   /**
    * When secret exists. Creates the GitAPI Object
    */
-  this.createAPIObject = function() {
-    let appSettings = getGlobalVariable('appSettings');
+  let createAPIObject = function() {
+    let appSettings = main.getGlobalVariable('appSettings');
 
     // invoke API class
     new window[appSettings['API_Gate']](
-      getLocalStorage( 'secret'),
+      main.getLocalStorage( 'secret'),
       function(api_gateway){
-        setGlobalVariable( 'gitApi', api_gateway );
+        main.setGlobalVariable( 'gitApi', api_gateway );
         document.getElementById('pageWrapper').classList.remove('hideLeftBar');
-        routeToCall();
+        main.routeToCall();
       },
       function(errorMessage){
         localStorage.removeItem('secret');
-        loadLoginForm(errorMessage);
+        main.loadLoginForm(errorMessage);
       }
     );
   };

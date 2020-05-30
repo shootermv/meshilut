@@ -1,3 +1,5 @@
+import * as main from './script.mjs'; 
+
 /**
  * Create a form for editing/adding content item
  * 
@@ -8,7 +10,7 @@
  * 
  */
 
-function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
+export function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
   
   let editedItem = {  
     id:requestedItemId,
@@ -17,7 +19,7 @@ function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
   };
 
   // Get content type data description and load defaults
-  let typeData = getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
+  let typeData = main.getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
   typeData.fields.forEach(function(field){
     if ( field.defaultValue ) {
       editedItem[field.name] = field.defaultValue ;
@@ -27,7 +29,7 @@ function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
     }
   });
 
-  let appSettings = getGlobalVariable('appSettings');
+  let appSettings = main.getGlobalVariable('appSettings');
   let siteUrl = appSettings['Site_Url'];
 
   let getItemURL = function( absoluteURL ){
@@ -93,7 +95,7 @@ function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
             formFields.forEach( f => f.name = op+'_'+f.name );
           break;
           case 'seo':
-            formFields = getGlobalVariable('SEOFields');
+            formFields = main.getGlobalVariable('SEOFields');
           break;
         }
 
@@ -266,7 +268,7 @@ function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
     /*** invoke API  ***/
     .then( files =>{
       console.log(files);
-      let APIconnect = getGlobalVariable('gitApi');
+      let APIconnect = main.getGlobalVariable('gitApi');
       return APIconnect.commitChanges('Save '+ contentType +': ' + editedItem.id , files)            
     })
     .then( res=>{
@@ -328,8 +330,6 @@ function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
             }
           }); 
           editedItem = translatedObject;
-          console.log(editedItem);
-          debugger;
         }
 
         let templateVars = {
@@ -358,12 +358,12 @@ function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
  * Display List of items (For the 'all' callback)
  * TODO: Add pager
  */
-function contentList( parentElement, contentType ) {
+export function contentList( parentElement, contentType ) {
 
-  let typeData = getGlobalVariable('contentTypes').find(ty=>ty.name==contentType);
+  let typeData = main.getGlobalVariable('contentTypes').find(ty=>ty.name==contentType);
   let pageTitle  =  typeData.labelPlural;
   
-  let appSettings = getGlobalVariable('appSettings');
+  let appSettings = main.getGlobalVariable('appSettings');
   let siteUrl = appSettings['Site_Url'];
 
   fetch(siteUrl+'/search/'+contentType+'.json')

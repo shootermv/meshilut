@@ -1,3 +1,6 @@
+import {contentItemForm, contentList} from './contentItem.js'; 
+import {doLogin} from './login.mjs'; 
+
 /**
  * Load settings file (JSON). 
  * called from the page loader flow
@@ -32,7 +35,7 @@ var loadSystemFile = function( variableName , filePath, onSuccess , onError ) {
 * Get system variable 
 * all variables should be set using this functions
 */
-var setGlobalVariable = function(variableName, variableValue){
+export var setGlobalVariable = function(variableName, variableValue){
   window[variableName] = variableValue;
 }
 
@@ -40,7 +43,7 @@ var setGlobalVariable = function(variableName, variableValue){
 * Get system variable 
 * all variables should be accessed using this functions
 */
-var getGlobalVariable = function(variableName) {
+export var getGlobalVariable = function(variableName) {
   return window[variableName];
 }
 
@@ -48,7 +51,7 @@ var setLocalStorage = function(property, obj) {
   localStorage.setItem(property, JSON.stringify(obj));
 }
 
-var getLocalStorage = function(property) {
+export var getLocalStorage = function(property) {
   return JSON.parse( localStorage.getItem(property) );
 }
 
@@ -58,7 +61,7 @@ var getLocalStorage = function(property) {
  **/
 let regexExpressions =  {};
 
-function routeToCall(){
+export function routeToCall(){
 
   let hash = window.location.hash;
  
