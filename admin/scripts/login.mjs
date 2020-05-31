@@ -1,3 +1,4 @@
+import * as utils from './utils.js'; 
 import * as main from './script.mjs'; 
 
 /**
@@ -10,19 +11,19 @@ export function doLogin( parentComponent ) {
    * When secret exists. Creates the GitAPI Object
    */
   let createAPIObject = function() {
-    let appSettings = main.getGlobalVariable('appSettings');
+    let appSettings = utils.getGlobalVariable('appSettings');
 
     // invoke API class
     new window[appSettings['API_Gate']](
-      main.getLocalStorage( 'secret'),
+      utils.getLocalStorage( 'secret'),
       function(api_gateway){
-        main.setGlobalVariable( 'gitApi', api_gateway );
+        utils.setGlobalVariable( 'gitApi', api_gateway );
         document.getElementById('pageWrapper').classList.remove('hideLeftBar');
         main.routeToCall();
       },
       function(errorMessage){
         localStorage.removeItem('secret');
-        main.loadLoginForm(errorMessage);
+        utils.loadLoginForm(errorMessage);
       }
     );
   };
@@ -45,7 +46,7 @@ export function doLogin( parentComponent ) {
     // form callback
     parentComponent.children[0].onsubmit = function(event) {  
       event.preventDefault();
-      setLocalStorage( 'secret', {'name':'event.target.name.value ','token':event.target.password.value });
+      utils.setLocalStorage( 'secret', {'name':'event.target.name.value ','token':event.target.password.value });
       createAPIObject();
     }
   }

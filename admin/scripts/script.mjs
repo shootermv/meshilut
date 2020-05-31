@@ -1,59 +1,7 @@
-import {contentItemForm, contentList} from './contentItem.js'; 
+import {loadSystemFile, getLocalStorage, setLocalStorage, getGlobalVariable, setGlobalVariable } from './utils.js'; 
+import {contentItemForm, contentList} from './contentItem.mjs'; 
 import {doLogin} from './login.mjs'; 
 
-/**
- * Load settings file (JSON). 
- * called from the page loader flow
- */
-
-var loadSystemFile = function( variableName , filePath, onSuccess , onError ) {
-
-  if ( localStorage.getItem(variableName) ) {
-    window[variableName] = JSON.parse(localStorage.getItem(variableName));
-    onSuccess();
-    return;
-  }
-
-  window[variableName] = {};
-  
-  fetch(filePath)
-    .then(function(response){
-      if (!response.ok) {
-        throw Error(response.statusText);
-      }
-      return response.json();
-    }).then(function(json){
-        window[variableName] = json;
-        onSuccess();
-      })
-    .catch(function(error) {
-      onError();
-    });
-}
-
-/*
-* Get system variable 
-* all variables should be set using this functions
-*/
-export var setGlobalVariable = function(variableName, variableValue){
-  window[variableName] = variableValue;
-}
-
-/*
-* Get system variable 
-* all variables should be accessed using this functions
-*/
-export var getGlobalVariable = function(variableName) {
-  return window[variableName];
-}
-
-var setLocalStorage = function(property, obj) {
-  localStorage.setItem(property, JSON.stringify(obj));
-}
-
-export var getLocalStorage = function(property) {
-  return JSON.parse( localStorage.getItem(property) );
-}
 
 /**
  * Simplest router...
@@ -117,6 +65,9 @@ export function routeToCall(){
 
       contentItemForm(document.getElementById('content'), contentType ,id , op);
     break;
+    case '#admin/rebuildHTML'==hash:
+      rebuildHTML(document.getElementById('content'));
+    break;
     case '#logout'==hash:
       localStorage.removeItem('token');
       localStorage.removeItem('secret');
@@ -126,9 +77,34 @@ export function routeToCall(){
     default:
       document.getElementById('content').innerHTML = 'error';
       let contentTypes = getGlobalVariable('contentTypes');
-      location.hash = contentTypes.reverse()[0].name + '/all';      
+      //location.hash = contentTypes.reverse()[0].name + '/all';      
     break;
   }
+}
+
+/**
+ * Rebuild items HTML pages from items Json.
+ */
+function rebuildHTML(parentElement) {
+  let typeData = getGlobalVariable('contentTypes');
+  console.log(typeData);  
+  let appSettings = getGlobalVariable('appSettings');
+  let siteUrl = appSettings['Site_Url'];
+  let parent = document.createElement('div');
+  /* */
+  fetch('../search/post.json')
+    .then(response=>{
+      return response.json();
+    })
+    .then(searchItems=>{
+      searchItems.forEach(searchItem=>{
+        if ( searchItem.id=='3091' ) {
+          var item = contentItemForm ( parent, 'post'  , searchItem.id , 'rebuild' );
+        }       
+      })
+    });
+ 
+  parentElement.innerHTML = 'aaaaaaa';
 }
 
 class Message  { 
