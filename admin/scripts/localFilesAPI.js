@@ -8,7 +8,7 @@ function localFilesAPI (loginParams, onSuccess, onFailure) {
   onSuccess(apiRefferance);
 
   /**
-   * Todo: better support blob for binary files 
+   * Todo: Build generic node end point for saving files
    */
   this.commitChanges = async function( commitMessage, files ) {
 
