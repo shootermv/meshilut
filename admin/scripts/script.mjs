@@ -1,5 +1,5 @@
 import {loadSystemFile, getLocalStorage, setLocalStorage, getGlobalVariable, setGlobalVariable } from './utils.js'; 
-import {contentItemForm, contentList} from './contentItem.mjs'; 
+import { contentItem, contentItemForm, contentList , contentItemLoader} from './contentItem.mjs'; 
 import {doLogin} from './login.mjs'; 
 
 
@@ -62,8 +62,26 @@ export function routeToCall(){
       // Else if Item form is requested
       let id  = params.shift();
       let op = ( params.length > 0 )? params[0] : 'edit';
+      
+      /** Start form */
+      contentItemLoader( contentType, id )
+      .then(contentItem => {
+        document.getElementById('content').innerHTML = '';
+        document.getElementById('content').appendChild( contentItemForm(contentType ,contentItem , op) );
+      })
+      // TODO: Change it to use generic hook system (support plugins)
+      .then( response => {  
+        Array.prototype.forEach.call( document.getElementsByClassName('wysiwyg_element') , function (wysiwyg) {
+          var suneditor = SUNEDITOR.create( wysiwyg.id , {
+            buttonList: [
+                ['undo', 'redo'],
+                ['align', 'horizontalRule', 'list', 'table', 'fontSize']
+            ],
+          });
+          suneditor.onChange =  wysiwyg.onchange;
+        });        
+      });
 
-      contentItemForm(document.getElementById('content'), contentType ,id , op);
     break;
     case '#admin/rebuildHTML'==hash:
       rebuildHTML(document.getElementById('content'));
@@ -96,13 +114,16 @@ function rebuildHTML(parentElement) {
     .then(response=>{
       return response.json();
     })
-    .then(searchItems=>{
-      searchItems.forEach(searchItem=>{
-        if ( searchItem.id=='3091' ) {
-          var item = contentItemForm ( parent, 'post'  , searchItem.id , 'rebuild' );
-        }       
-      })
+    .then( searchItems=>{
+      Promise.all(
+        searchItems
+          .filter( searchItem => searchItem.id == '3256')
+          .map( searchItem => contentItemLoader( 'post' , searchItem.id ) )
+      )        
+    }).then( files =>{
+      console.log(files);
     });
+  
  
   parentElement.innerHTML = 'aaaaaaa';
 }

@@ -10,55 +10,147 @@ import * as utils from './utils.js';
  * 
  */
 
-export function contentItemForm ( parentElement, contentType , requestedItemId , op ) {
-  
-  let editedItem = {  
-    id:requestedItemId,
-    type: contentType,
-    files:[]
-  };
+export function contentItem ( contentType , ItemId ) {
 
-  // Get content type data description and load defaults
-  let typeData = utils.getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
-  typeData.fields.forEach(function(field){
-    if ( field.defaultValue ) {
-      editedItem[field.name] = field.defaultValue ;
-    }
-    else {
-      editedItem[field.name] = '';
-    }
-  });
+  this.id = ItemId;
+  this.type= contentType;
+  this.files= [];
 
   let appSettings = utils.getGlobalVariable('appSettings');
   let siteUrl = appSettings['Site_Url'];
+  let typeData = utils.getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
+  
 
-  let getItemURL = function( absoluteURL ){
-    return (absoluteURL?siteUrl: '' ) + typeData.urlPrefix + editedItem.id;
-  };
-
-  let loadItem = function( onSuccess ) {
-
-    if( localStorage[editedItem.type+'/'+requestedItemId] ) { // item is in editing process
-      onSuccess();
-    }
-    else {
-      // load item details
-      fetch(getItemURL(true)+'/index.json').then(res=>{ return res.json() })
-      .then( loadedItemDetails => {
-        // init to the default value
-        typeData.fields.forEach(function(field){
-          if  ( loadedItemDetails[field.name] ) {
-            editedItem[field.name] = loadedItemDetails[field.name];
-          }
-        });        
-      })
-      .finally(onSuccess);
-    }
+  this.getURL = returnAbsolutePath => {
+      return ( returnAbsolutePath ? siteUrl: '' ) + typeData.urlPrefix + this.id;
   }
 
-  let renderForm = function() {
+  /**
+   * Render all files for this item
+   */
+  this.getRepositoryFiles = function(){
+    /*** index.html ***/
+    // TODO: Take laguages from settings...
+    return renderPageHTML(this, ['', 'en'])
+    .then(files => {
+      /*** index.json ***/
+      return files.concat([{
+        "content":  JSON.stringify(this),
+        "filePath": this.getURL(false)+'/index.json',
+        "encoding": "utf-8" 
+      }]);
+    })
+    /*** Add Attachments ***/
+    .then( files => {
+      if ( this.files.length == 0 )  return files;
+      let attachments = Object.keys(this.files).map( fieldName => ({
+          "content":  this.files[fieldName],
+          "filePath": this[fieldName],
+          "encoding": "base64" 
+      }));
+      return files.concat(attachments);
+    })
+  }
+    
+  /**
+   * Render index pages using html templates
+   * @param languages 
+   */
+  let renderPageHTML = async function( editItemObj, languages ) {
+    return Promise.all([
+      fetch('templates/base.html').then(result=> result.text()),
+      fetch('templates/genericInner.html').then(result=> result.text()),
+    ])
+    .then( templates =>{
+      return Promise.all( languages.map( language =>{
+        let editedItem = editItemObj;
+        if(language!='') {
+          let translatedObject = { 
+            id: editedItem.id, 
+            files: editedItem.files 
+          };
+          typeData.fields.forEach( f => { 
+            if( f.i18n === false ) {
+              translatedObject[f.name] = editedItem[f.name]
+            }
+            else {
+              translatedObject[f.name] = editedItem[language+'_'+f.name]
+            }
+          }); 
+          editedItem = translatedObject;
+        }
+
+        let templateVars = {
+            'item': editedItem,
+            'site_url':siteUrl
+        } ;
+        templateVars.content = new Function("return `"+templates[1] +"`;").call(templateVars); 
+         
+        return {
+          "content":  new Function("return `"+templates[0] +"`;").call(templateVars),
+          "filePath": (language!=''?language+'/':'')+editItemObj.getURL(false)+'/index.html',
+          "encoding": "utf-8" 
+        }
+      }));
+    }) 
+  }
+}
+
+/**
+ * Load content and return promiss for onload 
+ * 
+ * @param contentType 
+ * @param ItemId 
+ */
+export async function contentItemLoader ( contentType , ItemId ) {
+  
+  let contentObject =  new contentItem( contentType , ItemId );
+
+  // Get content type data description and load defaults
+  let typeData = utils.getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
+  
+  typeData.fields.forEach(field => {
+    if ( field.defaultValue ) {
+      contentObject[field.name] = field.defaultValue ;
+    }
+    else {
+      contentObject[field.name] = '';
+    }
+  });
+
+  if( localStorage[ contentObject.type + '/' + contentObject.id ] ) { // item is in editing process
+    return contentObject;
+  }
+  else {
+    // load item details
+    return fetch(contentObject.getURL(true)+'/index.json').then(res=>{ return res.json() })
+            .then( loadedItemDetails => {
+                // init to the default value
+                typeData.fields.forEach(function(field){
+                  if  ( loadedItemDetails[field.name] ) {
+                    contentObject[field.name] = loadedItemDetails[field.name];
+                  }
+                }); 
+                return contentObject;       
+            });
+  }
+}
+
+
+/**
+ * 
+ * Render item edit form
+ * 
+ * @param parentElement - the element that the form will be appended to
+ * @param contentType - type of content item
+ * @param requestedItemId - item's Id
+ * @param op - Operation (edit/sso/languagecode etc')
+ */
+export function contentItemForm ( contentType , editedItem , op ) {
+  let wrapper = document.createElement('div');
+  let typeData = utils.getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
     // Build node tabs
-    let baseURL = '#' + contentType + '/' + ( requestedItemId ? requestedItemId : 'new' ) + '/';
+    let baseURL = '#' + contentType + '/' + editedItem.id + '/';
     let links = [{ 'op':'edit', 'label':'עריכה' }];
     if ( true ) { // TODO: check i18n support
       links.push({ 'op':'en', 'label':'תרגום' });
@@ -67,7 +159,7 @@ export function contentItemForm ( parentElement, contentType , requestedItemId ,
 
     switch ( op ) {
     case 'delete':
-      parentElement.innerHTML = `
+      wrapper.innerHTML = `
         <div>
           <h3>האם אתה בטוח שברצונך למחוק פריט זה?</h3>
           <div>
@@ -75,7 +167,7 @@ export function contentItemForm ( parentElement, contentType , requestedItemId ,
             <button className='cancel' onclick="location.href='#${ contentType }/all'">לא</button>
           </div>
         </div>`;
-      parentElement.querySelector('#approveDelete').onclick = function(event){
+        wrapper.querySelector('#approveDelete').onclick = function(event){
         //TODO: Support delete
         alert('TODO: currently unsuported!')
       }
@@ -99,7 +191,7 @@ export function contentItemForm ( parentElement, contentType , requestedItemId ,
           break;
         }
 
-        parentElement.innerHTML = `<h1>עריכת ${typeData.label}</h1>
+        wrapper.innerHTML = `<h1>עריכת ${typeData.label}</h1>
         <ul class="nav nav-tabs">
           ${ links.map(field=>
             `<li class="nav-item">
@@ -110,7 +202,7 @@ export function contentItemForm ( parentElement, contentType , requestedItemId ,
 
         let form = document.createElement('form');
         
-        parentElement.appendChild(form);
+        wrapper.appendChild(form);
         formFields.forEach( function(field) {
               let fieldDiv = document.createElement('div');
               fieldDiv.classList.add('form-element');
@@ -126,12 +218,12 @@ export function contentItemForm ( parentElement, contentType , requestedItemId ,
                   idInput.value = editedItem.id;
                   idInput.onkeyup = v => {
                       editedItem.id = v.target.value;
-                      urlPreview.innerText =  getItemURL(true);
+                      urlPreview.innerText =  editedItem.getURL(true);
                   };
                   fieldDiv.appendChild(idInput);
                   let urlPreview = document.createElement('span');
                   urlPreview.className = 'siteUrlPreview'
-                  urlPreview.innerText =  getItemURL(true);
+                  urlPreview.innerText =  editedItem.getURL(true);
                   fieldDiv.appendChild(urlPreview);
                 break;
                 case 'wysiwyg':
@@ -139,22 +231,16 @@ export function contentItemForm ( parentElement, contentType , requestedItemId ,
                   let textarea = document.createElement('textarea');
                   textarea.id='formitem_'+ field.name;
                   textarea.name= field.name;
+                  textarea.className = field.type=='wysiwyg'?'wysiwyg_element':'';
                   textarea.placeholder= field.placeholder;
                   textarea.value = editedItem[field.name] ? editedItem[field.name] : '';
                   fieldDiv.appendChild(textarea);
-                  fieldDiv.onchange = function(event){
-                    editedItem[field.name] = event.target.value;
-                  }
-
-                  if ( field.type == 'wysiwyg' ) {
-                    var suneditor = SUNEDITOR.create('formitem_'+ field.name , {
-                      buttonList: [
-                          ['undo', 'redo'],
-                          ['align', 'horizontalRule', 'list', 'table', 'fontSize']
-                      ],
-                    });
-                    suneditor.onChange = function(htmlValue){
-                      editedItem[field.name] = htmlValue;
+                  textarea.onchange = function(event){
+                    if( typeof event == 'string') {
+                      editedItem[field.name] = event;
+                    }
+                    else {
+                      editedItem[field.name] = event.target.value;
                     }
                   }
                 break;
@@ -169,9 +255,9 @@ export function contentItemForm ( parentElement, contentType , requestedItemId ,
                   fileUploader.type="file";
                   fileUploader.onchange = function(event) {
 
-                    editedItem[field.name] = getItemURL(false)+ '/'+field.name+'.'+this.files[0].name.split('.').pop();
+                    editedItem[field.name] = editedItem.getURL(false)+ '/'+field.name+'.'+this.files[0].name.split('.').pop();
                     var reader = new FileReader();
-                    let previewElement = this.parentElement.querySelector('.preview');
+                    let previewElement = wrapper.querySelector('.preview');
                     previewElement.innerHTML = '';
 
                     reader.onload = function (evt) {
@@ -197,7 +283,7 @@ export function contentItemForm ( parentElement, contentType , requestedItemId ,
         cancelButton.onclick = function(){
           if( confirm('האם אתה בטוח?') ) {
             localStorage.removeItem(editedItem.type+'/'+requestedItemId);
-            gotoItemsList();
+            utils.gotoList(editedItem.type);
           }
         }
         let submitButton = document.createElement('button');
@@ -207,7 +293,22 @@ export function contentItemForm ( parentElement, contentType , requestedItemId ,
         /**
          * Submit item
          */
-        submitButton.onclick = commitItem;
+        submitButton.onclick = function() {
+          editedItem.getRepositoryFiles()
+          /*** Update Searchable List ***/ 
+          .then( files => {
+            return getUpdatedSearchFile('search/'+contentType+'.json').then( searchFiles => {
+              return  files.concat(searchFiles);
+            })
+          })
+          .then(files => {
+            commitItem('Save '+ contentType +': ' + editedItem.id , files );
+          })
+          .then(res => {
+            utils.gotoList( contentType );
+          });          
+        }
+
         submitButtons.appendChild(submitButton);
         submitButtons.appendChild(cancelButton);      
         form.appendChild(submitButtons);
@@ -218,66 +319,8 @@ export function contentItemForm ( parentElement, contentType , requestedItemId ,
         }
       break;
       case 'rebuild':
-        commitItem();
-        console.log('aaaaa');
-      break;
-    }
-    
-  }
-
-  /**
-   * Close edit page (navigate to content type list)
-   */
-  let gotoItemsList = function() {
-    location.hash = contentType+'/all';
-  }
-  
-  /**
-   * Commit changes to the git repository
-   */
-  let commitItem = function(){
-    // Object JSON file 
-    /*** index.json ***/
-    let files = [
-      {
-        "content":  JSON.stringify(editedItem),
-        "filePath": getItemURL(false)+'/index.json',
-        "encoding": "utf-8" 
-      },
-    ];
-
-    /*** index.html ***/
-    // TODO: Take laguages from settings...
-    renderPageHTML(['', 'en'])
-    .then(htmlFiles=>{ 
-      return files.concat(htmlFiles); 
-    })
-    /*** Add Attachments ***/
-    .then( files => {
-      if ( editedItem.files.length == 0 )  return files;
-      let attachments = Object.keys(editedItem.files).map( fieldName => ({
-          "content":  editedItem.files[fieldName],
-          "filePath": editedItem[fieldName],
-          "encoding": "base64" 
-      }));
-      return files.concat(attachments);
-    })
-    /*** Update Searchable List ***/ 
-    .then( files => {
-      return getUpdatedSearchFile('search/'+contentType+'.json').then( searchFiles => {
-        return  files.concat(searchFiles);
-      })
-    })
-    
-    /*** invoke API  ***/
-    .then( files =>{
-      console.log(files);
-      let APIconnect = utils.getGlobalVariable('gitApi');
-      return APIconnect.commitChanges('Save '+ contentType +': ' + editedItem.id , files)            
-    })
-    .then( res=>{
-      gotoItemsList();
-    });
+        return getRepositoryFiles();
+      break;    
   }
 
   /**
@@ -313,49 +356,19 @@ export function contentItemForm ( parentElement, contentType , requestedItemId ,
             .join(' ');
   }
 
-  let renderPageHTML = async function( languages ) {
-    return Promise.all([
-      fetch('templates/base.html').then(result=> result.text()),
-      fetch('templates/genericInner.html').then(result=> result.text()),
-    ])
-    .then( templates =>{
-      return Promise.all( languages.map( language =>{
-        if(language!='') {
-          let translatedObject = { 
-            id:editedItem.id, 
-            files: editedItem.files 
-          };
-          typeData.fields.forEach( f => { 
-            if( f.i18n === false ) {
-              translatedObject[f.name] = editedItem[f.name]
-            }
-            else {
-              translatedObject[f.name] = editedItem[language+'_'+f.name]
-            }
-          }); 
-          editedItem = translatedObject;
-        }
-
-        let templateVars = {
-            'item': editedItem,
-            'site_url':siteUrl
-        } ;
-        templateVars.content = new Function("return `"+templates[1] +"`;").call(templateVars); 
-         
-        return {
-          "content":  new Function("return `"+templates[0] +"`;").call(templateVars),
-          "filePath": (language!=''?language+'/':'')+getItemURL(false)+'/index.html',
-          "encoding": "utf-8" 
-        }
-      }));
-    }) 
-  }
-
-  // load item & render form
-  loadItem(renderForm);
+  return wrapper;
 }
 
 
+/**
+ * invoke API 
+ * Commit changes to the git repository
+ */
+let commitItem = function( commitMessage , files ){
+  
+  let APIconnect = utils.getGlobalVariable('gitApi');
+  return APIconnect.commitChanges( commitMessage, files);
+}
 
 
 /**

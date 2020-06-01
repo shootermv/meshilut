@@ -3,7 +3,7 @@
 * Get system variable 
 * all variables should be set using this functions
 */
-export var setGlobalVariable = function(variableName, variableValue){
+export let setGlobalVariable = function(variableName, variableValue){
     window[variableName] = variableValue;
 }
   
@@ -11,7 +11,7 @@ export var setGlobalVariable = function(variableName, variableValue){
  * Get system variable 
  * all variables should be accessed using this functions
  */
-export var getGlobalVariable = function(variableName) {
+export let getGlobalVariable = function(variableName) {
     return window[variableName];
 }
   
@@ -20,7 +20,7 @@ export var getGlobalVariable = function(variableName) {
  * @param {*} property 
  * @param {*} obj 
  */
-export var setLocalStorage = function(property, obj) {
+export let setLocalStorage = function(property, obj) {
     localStorage.setItem(property, JSON.stringify(obj));
 }
 
@@ -28,7 +28,7 @@ export var setLocalStorage = function(property, obj) {
  * 
  * @param {*} property 
  */
-export var getLocalStorage = function(property) {
+export let getLocalStorage = function(property) {
     return JSON.parse( localStorage.getItem(property) );
 }
 
@@ -36,8 +36,7 @@ export var getLocalStorage = function(property) {
  * Load settings file (JSON). 
  * called from the page loader flow
  */
-
-export var loadSystemFile = function( variableName , filePath, onSuccess , onError ) {
+export let loadSystemFile = function( variableName , filePath, onSuccess , onError ) {
 
     if ( localStorage.getItem(variableName) ) {
       window[variableName] = JSON.parse(localStorage.getItem(variableName));
@@ -62,3 +61,9 @@ export var loadSystemFile = function( variableName , filePath, onSuccess , onErr
       });
   }
   
+ /**
+ * Close edit page (navigate to content type list)
+ */
+export let gotoList = function( typeName ) {
+  location.hash = typeName+'/all';
+}
