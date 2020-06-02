@@ -15,6 +15,11 @@ export function contentItem ( contentType , ItemId ) {
   this.id = ItemId;
   this.type= contentType;
   this.files= [];
+  
+  this.seo = {};
+
+  // TODO: Dynamic languages 
+  this.en = {};
 
   let appSettings = utils.getGlobalVariable('appSettings');
   let siteUrl = appSettings['Site_Url'];
@@ -23,6 +28,19 @@ export function contentItem ( contentType , ItemId ) {
 
   this.getURL = returnAbsolutePath => {
       return ( returnAbsolutePath ? siteUrl: '' ) + typeData.urlPrefix + this.id;
+  }
+
+  this.set = function( field, value ) {
+    let fieldParts = field.split('.');
+    let refferer = this;
+    fieldParts.forEach((fieldName, i ) => {
+      if ( i+1 == fieldParts.length ) {
+        refferer[fieldName] = value;
+        return;
+      }
+      refferer = refferer[fieldName];
+    });
+    localStorage.setItem( this.type + '/' + this.id , JSON.stringify(this) );
   }
 
   /**
@@ -74,7 +92,7 @@ export function contentItem ( contentType , ItemId ) {
               translatedObject[f.name] = editedItem[f.name]
             }
             else {
-              translatedObject[f.name] = editedItem[language+'_'+f.name]
+              translatedObject[f.name] = editedItem[language][f.name];
             }
           }); 
           editedItem = translatedObject;
@@ -117,21 +135,20 @@ export async function contentItemLoader ( contentType , ItemId ) {
       contentObject[field.name] = '';
     }
   });
-
+  
   if( localStorage[ contentObject.type + '/' + contentObject.id ] ) { // item is in editing process
-    return contentObject;
+    let cachedData = JSON.parse(localStorage[ contentObject.type + '/' + contentObject.id ]);
+    let mergedObject = { ...contentObject, ...cachedData };
+    return mergedObject;
   }
   else {
     // load item details
-    return fetch(contentObject.getURL(true)+'/index.json').then(res=>{ return res.json() })
+    return fetch(contentObject.getURL(true)+'/index.json')
+            .then( res => { return res.json() })
             .then( loadedItemDetails => {
                 // init to the default value
-                typeData.fields.forEach(function(field){
-                  if  ( loadedItemDetails[field.name] ) {
-                    contentObject[field.name] = loadedItemDetails[field.name];
-                  }
-                }); 
-                return contentObject;       
+                let mergedObject = { ...contentObject, ...loadedItemDetails };
+                return mergedObject;       
             });
   }
 }
@@ -176,18 +193,23 @@ export function contentItemForm ( contentType , editedItem , op ) {
       case 'new':
       case 'en':  
       case 'seo':
+        let dataObject = editedItem;
         // Set Fields By OP type
         let formFields =  JSON.parse(JSON.stringify(typeData.fields));
         switch( op ) {
           case 'edit':
-            formFields.unshift({name: "id", label: "מזהה", type: "id"});
+            // Default fields 
+            formFields.unshift({ name: "id", label: "מזהה", type: "id"});
           break;
-          case 'en':
-            formFields = formFields.filter( f=>f.i18n!==false );
-            formFields.forEach( f => f.name = op+'_'+f.name );
+          case 'en':            
+            formFields = formFields
+                          .filter( f=> f.type != 'file')
+                          .filter( f=> f.i18n !== false );
+            dataObject = editedItem['en'];
           break;
           case 'seo':
             formFields = utils.getGlobalVariable('SEOFields');
+            dataObject = editedItem['seo'];
           break;
         }
 
@@ -217,7 +239,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
                   let idInput = document.createElement('input');
                   idInput.value = editedItem.id;
                   idInput.onkeyup = v => {
-                      editedItem.id = v.target.value;
+                      editedItem.set( 'id' , v.target.value );
                       urlPreview.innerText =  editedItem.getURL(true);
                   };
                   fieldDiv.appendChild(idInput);
@@ -233,15 +255,13 @@ export function contentItemForm ( contentType , editedItem , op ) {
                   textarea.name= field.name;
                   textarea.className = field.type=='wysiwyg'?'wysiwyg_element':'';
                   textarea.placeholder= field.placeholder;
-                  textarea.value = editedItem[field.name] ? editedItem[field.name] : '';
+                  textarea.value = dataObject[field.name] ? dataObject[field.name] : '';
                   fieldDiv.appendChild(textarea);
                   textarea.onchange = function(event){
-                    if( typeof event == 'string') {
-                      editedItem[field.name] = event;
-                    }
-                    else {
-                      editedItem[field.name] = event.target.value;
-                    }
+                    let textValue = typeof event == 'string' ? event :  event.target.value;
+                    // fieldName with language prefix
+                    let fieldName = ( op == 'edit'?'':(op+'.'))+ field.name;
+                    editedItem.set( fieldName , textValue );
                   }
                 break;
                 case 'file':
@@ -254,8 +274,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
                   fileUploader.name= field.name;
                   fileUploader.type="file";
                   fileUploader.onchange = function(event) {
-
-                    editedItem[field.name] = editedItem.getURL(false)+ '/'+field.name+'.'+this.files[0].name.split('.').pop();
+                    editedItem.set( field.name , editedItem.getURL(false)+ '/'+field.name+'.'+this.files[0].name.split('.').pop());
                     var reader = new FileReader();
                     let previewElement = wrapper.querySelector('.preview');
                     previewElement.innerHTML = '';
