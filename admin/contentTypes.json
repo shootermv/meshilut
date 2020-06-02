@@ -3,6 +3,8 @@
         "name":"post",
         "label":"כתבה",
         "labelPlural":"כתבות",
+        "labelPlural":"כתבות",
+        "labelDefinedPlural":"הכתבות",
         "urlPrefix":"post/",
         "fields":[
             {"name":"title","label":"כותרת","type":"textfield", "placeholder":"כותרת הפוסט"},
@@ -15,6 +17,7 @@
         "label":"פריט חדשות",
         "urlPrefix":"news-item/",
         "labelPlural":"פריטי חדשות",
+        "labelDefinedPlural":"פריטי החדשות",
         "fields":[
             {"name":"title","label":"כותרת","type":"textfield"},
             {"name":"body","label":"תוכן","type":"wysiwyg"},
@@ -26,6 +29,7 @@
         "label":"סרטון",
         "urlPrefix":"movie/",
         "labelPlural":"סרטונים",
+        "labelDefinedPlural":"הסרטונים",
         "fields":[
             {"name":"title","label":"כותרת","type":"textfield"},
             {"name":"url","label":"כתובת (URL)","type":"textfield" , "i18n":false }

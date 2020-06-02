@@ -165,6 +165,10 @@ export async function contentItemLoader ( contentType , ItemId ) {
  */
 export function contentItemForm ( contentType , editedItem , op ) {
   let wrapper = document.createElement('div');
+  
+  let appSettings = utils.getGlobalVariable('appSettings');
+  let siteUrl = appSettings['Site_Url'];
+
   let typeData = utils.getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
     // Build node tabs
     let baseURL = '#' + contentType + '/' + editedItem.id + '/';
@@ -414,16 +418,19 @@ export function contentList( parentElement, contentType ) {
                     <table>
                       <tr>
                         <th>#</th>
-                        <th>כותרת</th>
-                        <th></th>
                         <th>לינקים</th>
+                        <th>כותרת</th>                     
                       </tr>
                       ${ items.map((item) => 
                         `<tr>
                           <td>${item.id}</td>
+                          <td>
+                            <a href=${'#post/'+item.id}>ערוך</a>
+                            <a style='margin-right:20px;' href=${'#post/'+item.id+'/delete'}>מחק</a>
+                          </td>
+                          
                           <td>${item.title}</td>
-                          <td><a href=${'#post/'+item.id}>ערוך</a></td>
-                          <td><a href=${'#post/'+item.id+'/delete'}>מחק</a></td>
+                          
                         </tr>` ).join("")}        
                     </table>
                   </div>`;

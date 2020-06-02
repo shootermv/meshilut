@@ -36,7 +36,7 @@ export function routeToCall(){
             document.getElementById('sidebarLinks').insertAdjacentHTML('afterbegin',  `
               <li><h3>${contentType.labelPlural}</h3></li>
               <li>
-                <a class="nav-link" href="#${contentType.name}/all">כל ה${contentType.labelPlural}</a>
+                <a class="nav-link" href="#${contentType.name}/all">כל ${contentType.labelDefinedPlural}</a>
               </li>
               <li>
                 <a class="nav-link" href="#${contentType.name}/new">הוסף ${contentType.label} חדש</a>
@@ -125,11 +125,13 @@ function rebuildHTML(parentElement) {
     })
     .then( files =>{
       files = [].concat.apply([], files);
-      commitFiles('Rebuild Posts', files);
+      commitFiles('Rebuild Posts', files)
+    }).then(res=> {
+      parentElement.innerHTML = 'Done!';
     });
   
  
-  parentElement.innerHTML = 'aaaaaaa';
+  parentElement.innerHTML = 'Rebuilding.... Please Wait';
 }
 
 class Message  { 

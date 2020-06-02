@@ -10,9 +10,15 @@
 body {
   background-color: var(--main-bg-color);
 }
+
+table {
+  width: 100%;
+}
+
 h1 {
   color:#05668d;
 }
+
   h3 {
     font-size: 16px;
   }
@@ -125,17 +131,20 @@ h1 {
   }
 
   tr:nth-child(even) {
-    background-color:#ddd;
+    background-color:#eee;
   }
 
-  td {
+  td, th {
     padding:5px 10px;
     line-height: 20px;
     padding:5px;
+    width:20px;
+    text-align: right;
   }
 
-  td:nth-child(2) {
-    width:200px;
+  td:nth-child(3) {
+    width: CALC( 100% - 200px );
+    padding: 10px;
   }
 
   .loginForm input[type=submit] {
