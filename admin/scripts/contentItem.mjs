@@ -321,7 +321,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
             })
           })
           .then(files => {
-            commitItem('Save '+ contentType +': ' + editedItem.id , files );
+            commitFiles('Save '+ contentType +': ' + editedItem.id , files );
           })
           .then(res => {
             utils.gotoList( contentType );
@@ -383,7 +383,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
  * invoke API 
  * Commit changes to the git repository
  */
-let commitItem = function( commitMessage , files ){
+export function commitFiles( commitMessage , files ){
   
   let APIconnect = utils.getGlobalVariable('gitApi');
   return APIconnect.commitChanges( commitMessage, files);

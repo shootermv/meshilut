@@ -1,5 +1,5 @@
-import {loadSystemFile, getLocalStorage, setLocalStorage, getGlobalVariable, setGlobalVariable } from './utils.js'; 
-import { contentItem, contentItemForm, contentList , contentItemLoader} from './contentItem.mjs'; 
+import {loadSystemFile, getGlobalVariable, setGlobalVariable } from './utils.js'; 
+import { commitFiles, contentItemForm, contentList , contentItemLoader} from './contentItem.mjs'; 
 import {doLogin} from './login.mjs'; 
 
 
@@ -115,13 +115,17 @@ function rebuildHTML(parentElement) {
       return response.json();
     })
     .then( searchItems=>{
-      Promise.all(
+      return Promise.all(
         searchItems
-          .filter( searchItem => searchItem.id == '3256')
-          .map( searchItem => contentItemLoader( 'post' , searchItem.id ) )
-      )        
-    }).then( files =>{
-      console.log(files);
+          .map( searchItem => { 
+            return contentItemLoader('post', searchItem.id)
+                    .then( fetchedItem => fetchedItem.getRepositoryFiles() )
+          })
+      )       
+    })
+    .then( files =>{
+      files = [].concat.apply([], files);
+      commitFiles('Rebuild Posts', files);
     });
   
  
