@@ -43,7 +43,7 @@
         "labelDefinedPlural":"ניירות העמדה",
         "fields":[
             {"name":"title","label":"כותרת","type":"textfield"},
-            {"name":"paper","label":"מסמך","type":"file", "i18n":false}
+            {"name":"paper","label":"מסמך","type":"file", "i18n": false}
         ]
     }
 ]
