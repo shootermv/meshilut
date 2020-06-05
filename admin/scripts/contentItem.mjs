@@ -75,6 +75,8 @@ export function contentItem ( contentType , ItemId ) {
    * @param languages 
    */
   let renderPageHTML = async function( editItemObj, languages ) {
+
+    // TODO: Use impoprt to fetch templates
     return Promise.all([
       fetch('templates/base.html').then(result=> result.text()),
       fetch('templates/genericInner.html').then(result=> result.text()),
@@ -149,6 +151,9 @@ export async function contentItemLoader ( contentType , ItemId ) {
                 // init to the default value
                 let mergedObject = { ...contentObject, ...loadedItemDetails };
                 return mergedObject;       
+            })
+            .catch(err=> {
+              return contentObject
             });
   }
 }

@@ -34,5 +34,16 @@
             {"name":"title","label":"כותרת","type":"textfield"},
             {"name":"url","label":"כתובת (URL)","type":"textfield" , "i18n":false }
         ]
+    },
+    {  
+        "name":"papers",
+        "label":"ניירות עמדה",
+        "urlPrefix":" papers/",
+        "labelPlural":"ניירות עמדה",
+        "labelDefinedPlural":"ניירות העמדה",
+        "fields":[
+            {"name":"title","label":"כותרת","type":"textfield"},
+            {"name":"paper","label":"מסמך","type":"file", "i18n":false}
+        ]
     }
 ]

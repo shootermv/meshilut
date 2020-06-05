@@ -16,7 +16,11 @@ export function routeToCall(){
   switch(true) {
     /** Page loader - init variables **/
     case !getGlobalVariable('appSettings'):
-      loadSystemFile( 'appSettings', './appSettings.json' , routeToCall, routeToCall );
+      loadSystemFile( 'appSettings', './appSettings.json' , routeToCall );
+    break;
+    /** Page loader - init variables **/
+    case !getGlobalVariable('translations'):
+      loadSystemFile( 'translations', './translations.json' , translatePage );
     break;
     case !getGlobalVariable('logStore'):
       setGlobalVariable( 'logStore', {} );
@@ -24,7 +28,7 @@ export function routeToCall(){
       doLogin(document.getElementById('content'));
     break;
     case !getGlobalVariable('SEOFields'):
-      loadSystemFile( 'SEOFields', './SEOFields.json' , routeToCall, routeToCall );
+      loadSystemFile( 'SEOFields', './SEOFields.json' , routeToCall );
     break;
     case !getGlobalVariable('contentTypes'):
       loadSystemFile( 'contentTypes', './contentTypes.json', function(){
@@ -46,7 +50,7 @@ export function routeToCall(){
           });
         }
         routeToCall();
-      }, routeToCall );
+      });
     break;
     /** Content Item management **/
     case regexExpressions.itemManagment.test(hash):
@@ -83,6 +87,9 @@ export function routeToCall(){
       });
 
     break;
+    case '#translate'==hash:
+      translationInterface(document.getElementById('content'));
+    break;
     case '#admin/rebuildHTML'==hash:
       rebuildHTML(document.getElementById('content'));
     break;
@@ -98,6 +105,29 @@ export function routeToCall(){
       //location.hash = contentTypes.reverse()[0].name + '/all';      
     break;
   }
+}
+
+/** Translation interface for 'static' string in pages */
+function translationInterface(parentElement) {
+  let translations = getGlobalVariable('translationsKeys');
+  console.log(translations);
+  
+  parentElement.innerHTML = 'aaa!';
+
+}
+
+/* update page with translated strings */
+function translatePage( items ) {
+  let appSettings = getGlobalVariable('appSettings'); 
+  let translations = getGlobalVariable('translations');
+
+  translations.forEach(translateItem=>{
+    var element = document.getElementById('t_'+translateItem.key);
+    if( element && translateItem.t[appSettings.Admin_Lanaguage]) {
+  //    element.innerText = translations.t[appSettings.Admin_Lanaguage];
+    }
+  })
+  routeToCall();
 }
 
 /**

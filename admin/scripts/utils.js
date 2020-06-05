@@ -36,7 +36,7 @@ export let getLocalStorage = function(property) {
  * Load settings file (JSON). 
  * called from the page loader flow
  */
-export let loadSystemFile = function( variableName , filePath, onSuccess , onError ) {
+export let loadSystemFile = function( variableName , filePath, onSuccess ) {
 
     if ( localStorage.getItem(variableName) ) {
       window[variableName] = JSON.parse(localStorage.getItem(variableName));
@@ -57,7 +57,7 @@ export let loadSystemFile = function( variableName , filePath, onSuccess , onErr
           onSuccess();
         })
       .catch(function(error) {
-        onError();
+        console.error( 'Error Loading system file', error , variableName , filePath );
       });
   }
   

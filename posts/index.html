@@ -62,10 +62,11 @@
         
     </div>
     <script>
+        //body.append([{title: 'my', text: 'oo',{title: 'my22', text: 'oo22'}}].map(({title, text}) => `<article><h1>${title}</h1><p>${text}</p></article>`).join(''))
         fetch('../search/post.json')
             .then(res=>res.json())
-            .then(jsonReasault=>{
-                jsonReasault.forEach( jsonItem => {
+            .then(jsonItems=>{
+                jsonItems.forEach( jsonItem => {
                     let itemDiv = document.createElement('div');
                     itemDiv.className = "card";
                     let itemTitle = document.createElement('h3');
