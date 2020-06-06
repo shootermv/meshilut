@@ -44,6 +44,9 @@ function GitHubAPI (loginParams, onSuccess, onFailure) {
         });
   }
 
+  this.getFile = async function( path ) {
+    return repo.contents(path).read();
+  }
 
   /**
    * Todo: better support blob for binary files 

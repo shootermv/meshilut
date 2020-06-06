@@ -1,1 +1,7 @@
-[{"key":"logout","t":{"en":"logout","he":"התנתק"}}]
+[
+    {"key":"logout","ui":0,"t":{"en":"logout","he":"התנתק"}},
+    {"key":"translate","ui":0,"t":{"en":"Translate","he":"תרגומים"}},
+    {"key":"siteName","ui":0,"t":{"en":"The Movement for Governance and Democracy","he":"התנועה למשילות ודמוקרטיה"}},
+    {"key":"slogan", "description":"סלוגן", "ui":1,"t":{"en":"The Movement for Governance and Democracy creating reality","he":"התנועה למשילות ודמוקרטיה יוצרים מציאות"}},
+    {"key":"fp_block1", "description":"בלוק ראשון בדך הבית","ui":1,"t":{"en":"The movement is concerned with maintaining the balance between the various components of democracy in the State of Israel: deciding the majority, individual rights, governing fairness and transparency. The institution monitors, investigates, publishes, promotes legislation and reforms at the interface between the elected authority, which expresses the majority's decision and Israel is a Jewish state and the judiciary charged with individual winnings, corruption prevention and rule of law.","he":"התנועה עוסקת בשמירת האיזונים בין מרכיבי הדמוקרטיה השונים במדינת ישראל: הכרעת הרוב, זכויות הפרט, הגינות שלטונית ושקיפות. המוסד עוקב, חוקר, מפרסם, מקדם חקיקה ורפורמות בממשק שבין הרשות הנבחרת, המבטאת את הכרעות הרוב ואת היותה של ישראל מדינה יהודית לבין הרשות השופטת המופקדת על זכיות הפרט, מניעת שחיתות ושלטון החוק."}}
+]

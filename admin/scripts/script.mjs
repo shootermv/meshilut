@@ -109,11 +109,24 @@ export function routeToCall(){
 
 /** Translation interface for 'static' string in pages */
 function translationInterface(parentElement) {
-  let translations = getGlobalVariable('translationsKeys');
-  console.log(translations);
-  
-  parentElement.innerHTML = 'aaa!';
+  let translations = getGlobalVariable('translations');
+  let appSettings = getGlobalVariable('appSettings');
 
+  let fields = translations.filter(translationItem=>translationItem.ui==1)
+                           .map( translationItem => `
+                              <h3>${translationItem.description} (${translationItem.key})</h3>
+                              ${ appSettings.Lanugages.map(langkey=> `<div class='langItem ${langkey}'>
+                                <label>${ appSettings.LanugageLabels[langkey] }</label>
+                                <textarea>${ translationItem.t[langkey] }</textarea>
+                              </div>`).join('') }                        
+                            `).join('<hr/>');
+  let submit = document.createElement('button');
+  submit.innerText = 'Submit';
+  submit.onclick = ()=>{
+    alert('AAA');
+  }
+  parentElement.innerHTML = '<div id="translaitonInterface">'+fields+'</div>';
+  parentElement.appendChild(submit);
 }
 
 /* update page with translated strings */
@@ -124,7 +137,7 @@ function translatePage( items ) {
   translations.forEach(translateItem=>{
     var element = document.getElementById('t_'+translateItem.key);
     if( element && translateItem.t[appSettings.Admin_Lanaguage]) {
-  //    element.innerText = translations.t[appSettings.Admin_Lanaguage];
+      element.innerText = translateItem.t[appSettings.Admin_Lanaguage];
     }
   })
   routeToCall();
@@ -162,14 +175,6 @@ function rebuildHTML(parentElement) {
   
  
   parentElement.innerHTML = 'Rebuilding.... Please Wait';
-}
-
-class Message  { 
-  render() {
-    return (
-      '<div className={ "alert alert-" + this.props.type }>{ this.props.message }</div>'
-    )
-  }
 }
 
 window.onload = function(e) { 

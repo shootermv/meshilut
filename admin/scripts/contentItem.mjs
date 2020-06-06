@@ -208,9 +208,11 @@ export function contentItemForm ( contentType , editedItem , op ) {
         switch( op ) {
           case 'edit':
             // Default fields 
+            formFields.unshift({ name: "title", label: "כותרת", type: "textfield"});
             formFields.unshift({ name: "id", label: "מזהה", type: "id"});
           break;
           case 'en':            
+            formFields.unshift({ name: "title", label: "כותרת", type: "textfield"});
             formFields = formFields
                           .filter( f=> f.type != 'file')
                           .filter( f=> f.i18n !== false );
@@ -356,16 +358,25 @@ export function contentItemForm ( contentType , editedItem , op ) {
    * @param {*} filePath 
    */
   let getUpdatedSearchFile = function ( filePath ) {
-    return fetch(filePath )
-            .then( response => searchableJSONResponse.json() )
-            .catch( exeption=> [] )
+    let APIconnect = utils.getGlobalVariable('gitApi');
+    return APIconnect
+            .getFile ('/search/'+contentType+'.json')
+            .then(response => JSON.parse(response))
+            .catch(error => [])
             .then( fileJson => {
               var indexedItem = {};
               indexedItem.id = editedItem.id;
               indexedItem.title = editedItem.title;
+              indexedItem.teaser = editedItem.title;
+              indexedItem.href = editedItem.getURL(false);
               indexedItem.body = getSearchableString();
-              
-              fileJson.push(indexedItem);
+              if( fileJson.find( fileItem=> fileItem.id== editedItem.id) ) {
+                let foundItem =  fileJson.find( fileItem=> fileItem.id== editedItem.id); 
+                fileJson[fileJson.indexOf(foundItem)] = indexedItem;
+              }
+              else {
+                fileJson.push(indexedItem);
+              }
 
               return [{
                 "content": JSON.stringify(fileJson),
@@ -375,13 +386,19 @@ export function contentItemForm ( contentType , editedItem , op ) {
             });
   }
 
+  /**
+   * Get Search string - map item words in order to support static search
+   */
   let getSearchableString = function() {
-    return typeData.fields
-            .filter(f => f.type != 'file')
-            .filter(f=> ['id','name'].indexOf(f.name) )
-            .filter(f=> editedItem[f.name] )
-            .map(f => editedItem[f.name].replace(/(<([^>]+)>)/ig," "))
-            .join(' ');
+    let words = typeData.fields            
+                .filter(f => f.type != 'file')
+                .filter(f=> ['id'].indexOf(f.name) )
+                .filter(f=> editedItem[f.name] )
+                .map(f => editedItem[f.name].replace(/(<([^>]+)>)/ig," "))
+                .map(s => s.replace(/\r?\n|\r/g,' '))
+                .map(s => s.replace(/[^a-zA-Z0-9א-ת ]/g,""))
+                .join(' ');
+    return Array.from(new Set(words.split(' ').filter(s=>s.length>3))).join(' ');
   }
 
   return wrapper;
@@ -392,7 +409,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
  * invoke API 
  * Commit changes to the git repository
  */
-export function commitFiles( commitMessage , files ){
+export function commitFiles( commitMessage , files ) {
   
   let APIconnect = utils.getGlobalVariable('gitApi');
   return APIconnect.commitChanges( commitMessage, files);
@@ -404,16 +421,13 @@ export function commitFiles( commitMessage , files ){
  * TODO: Add pager
  */
 export function contentList( parentElement, contentType ) {
-
+  let APIconnect = utils.getGlobalVariable('gitApi');
   let typeData = utils.getGlobalVariable('contentTypes').find(ty=>ty.name==contentType);
   let pageTitle  =  typeData.labelPlural;
   
-  let appSettings = utils.getGlobalVariable('appSettings');
-  let siteUrl = appSettings['Site_Url'];
-
-  fetch(siteUrl+'/search/'+contentType+'.json')
+  APIconnect.getFile ('/search/'+contentType+'.json')
     .then(response=>{
-      return response.json();
+      return JSON.parse(response);
     })
     .then(items=>{
       if(items.length==0) {throw 'empty';}
@@ -430,7 +444,7 @@ export function contentList( parentElement, contentType ) {
                         `<tr>
                           <td>${item.id}</td>
                           <td>
-                            <a href=${'#post/'+item.id}>ערוך</a>
+                            <a href=${'#'+ contentType +'/'+item.id}>ערוך</a>
                             <a style='margin-right:20px;' href=${'#post/'+item.id+'/delete'}>מחק</a>
                           </td>
                           
