@@ -8,6 +8,13 @@
     margin:0 auto;
 }
 
+#main.itemPage {
+    margin: 0;
+    max-width: 100%;
+    min-width: 100%;
+    width: 100%;
+}
+
 #main section.title {
     display: flex;
     flex-direction: column;
@@ -91,7 +98,7 @@
     display: block;
     z-index: 1;
     opacity: 0.3;
-    background: url(/assets/images/FP_BlockBG.png) center center;
+    background: url(assets/images/FP_BlockBG.png) center center;
     opacity: 0.15;
     position: absolute;
     left: 0;

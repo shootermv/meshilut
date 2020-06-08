@@ -111,20 +111,79 @@ export function routeToCall(){
 function translationInterface(parentElement) {
   let translations = getGlobalVariable('translations');
   let appSettings = getGlobalVariable('appSettings');
-
+  
   let fields = translations.filter(translationItem=>translationItem.ui==1)
                            .map( translationItem => `
                               <h3>${translationItem.description} (${translationItem.key})</h3>
                               ${ appSettings.Lanugages.map(langkey=> `<div class='langItem ${langkey}'>
                                 <label>${ appSettings.LanugageLabels[langkey] }</label>
-                                <textarea>${ translationItem.t[langkey] }</textarea>
+                                <textarea id='${ translationItem.key + '_' + langkey }'>${ translationItem.t[langkey] }</textarea>
                               </div>`).join('') }                        
                             `).join('<hr/>');
   let submit = document.createElement('button');
   submit.innerText = 'Submit';
   submit.onclick = ()=>{
-    alert('AAA');
+    translations.forEach(translationItem=>{
+      if ( translationItem.ui != 1 ) return;
+      appSettings.Lanugages.forEach(langkey=> {
+        translationItem.t[langkey] = document.getElementById(translationItem.key+'_'+langkey).value;
+      })
+    });
+    let languages = ['','en'];
+    
+    let wrapperPath = 'templates/base.html';
+    fetch( wrapperPath )
+      .then(res=>res.text())
+      .then( pageWrapper => {
+
+        return languages.map(languageCode=>{
+          let linksPrefix = languageCode + (languageCode==''?'':'/');
+          let templates = {
+            'front.page.html':'index.html',
+            'about.page.html':'about/index.html',
+          };
+
+          let strings = {};        
+          translations.forEach(item => strings[item.key] = item.t[languageCode==''?'he':languageCode] );
+         
+          let templateVars = {
+              'strings': strings,
+              'pageTitle': 'Front Page',
+              'site_url': appSettings['Site_Url'],
+              'direction':'rtl',
+              'linksPrefix': linksPrefix
+          };
+
+          return Promise.all(
+            Object.keys(templates)
+            .map( templateFile => 
+            {
+              return fetch('templates/' + templateFile )
+                    .then( res => res.text() )
+                    .then( template => 
+                      {              
+                        templateVars.content = new Function("return `" + template + "`;").call(templateVars); 
+
+                        return ({
+                          "content":  new Function("return `" + pageWrapper + "`;").call(templateVars),
+                          "filePath": linksPrefix + templates[ templateFile ],
+                          "encoding": "utf-8" 
+                        })
+                      })
+            })
+          )        
+        })
+      })
+      .then( filesResponses => Promise.all(filesResponses))
+      .then( filesResponses =>{ 
+        return filesResponses.reduce((filesResponses, val) => filesResponses.concat(val), []);
+      })
+      .then( renderedFiles =>{     
+        commitFiles('Rerender pages after translation change' , renderedFiles );
+          //location.reload();
+      })
   }
+
   parentElement.innerHTML = '<div id="translaitonInterface">'+fields+'</div>';
   parentElement.appendChild(submit);
 }
@@ -148,7 +207,6 @@ function translatePage( items ) {
  */
 function rebuildHTML(parentElement) {
   let typeData = getGlobalVariable('contentTypes');
-  console.log(typeData);  
   let appSettings = getGlobalVariable('appSettings');
   let siteUrl = appSettings['Site_Url'];
   let parent = document.createElement('div');
