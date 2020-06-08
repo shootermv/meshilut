@@ -62,25 +62,24 @@
             <i id='mobileMenuToggle' class="fas fa-bars"></i>
         </div>
     </header>
-    <main id="main" class="contact">        
+    <main id="main" class="news">        
         <h1>undefined</h1>        
-        <section class="three-widgets">
-    <article class="widget">
-        <i class="fa fa-map-marker" aria-hidden="true"></i>
-        <h3>בקר אצלנו</h3>
-        <div>רח' הברון הירש 4 ירושלים</div>
-    </article>
-    <article class="widget">
-        <i class="fa fa-envelope" aria-hidden="true"></i>
-        <h3>שלח לנו אמייל</h3>
-        <div>office@meshilut.org</div> 
-    </article>
-    <article class="widget">
-        <i class="fa fa-money" aria-hidden="true"></i>
-        <h3>תרמו לנו</h3>
-        <div>לתרמה לחצו כאן - בתודה מראש</div>
-    </article>
-</section>   
+        <h1>התנועה בחדשות</h1>
+<div id="main"> 
+    <div class="card-deck">
+        {% for paperItem in items %}
+            <div class="card" style="width: 18rem;display:inline-block">
+                <img class="card-img-top"  width="192px" height="134px" src="{% static paperItem.image %}" />
+                <div class="card-body">
+                    
+                    <h5 class="card-title">{{ paperItem.title }}</h5>   
+                    <a class="btn btn-primary" href="{{ paperItem.link }}" role="button">לצפיה</a> 
+                </div>  
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
     </main>
 </body>
 </html>
