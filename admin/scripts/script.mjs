@@ -139,16 +139,56 @@ function translationInterface(parentElement) {
 
         return languages.map(languageCode=>{
           let linksPrefix = languageCode + (languageCode==''?'':'/');
-          let templates = {
-            'front.page.html':'index.html',
-            'about.page.html':'about/index.html',
-            'news.page.html':'in-the-news/index.html',
-            'papers.page.html':'position-papers/index.html',
-            'articles.page.html':'posts/index.html',
-            'media.page.html':'media/index.html',
-            'contact.page.html':'contact-us/index.html',
-            'donations.page.html':'donations/index.html'
-          };
+          let templates = [
+            { 
+              template:'front.page.html',
+              target:'index.html',
+              title:'frontPage',
+              class:'frontPage'
+            },
+            { 
+              template:'about.page.html',
+              target:'about/index.html',
+              title:'AboutUs',
+              class:'AboutUs'
+            },
+            { 
+              template:'news.page.html',
+              target:'in-the-news/index.html',
+              title:'news',
+              class:'news'
+            },
+            { 
+              template:'papers.page.html',
+              target:'position-papers/index.html',
+              title:'papers',
+              class:'papers'
+            },
+            { 
+              template:'articles.page.html',
+              target:'posts/index.html',
+              title:'articles',
+              class:'articles'
+            },
+            { 
+              template:'media.page.html',
+              target:'media/index.html',
+              title:'media',
+              class:'media'
+            },
+            { 
+              template:'contact.page.html',
+              target:'contact-us/index.html',
+              title:'contact',
+              class:'contact'
+            },
+            { 
+              template:'donations.page.html',
+              target:'donations/index.html',
+              title:'donations',
+              class:'donations'
+            }
+          ];
 
           let strings = {};        
           translations.forEach(item => strings[item.key] = item.t[languageCode==''?'he':languageCode] );
@@ -162,18 +202,18 @@ function translationInterface(parentElement) {
           };
 
           return Promise.all(
-            Object.keys(templates)
-            .map( templateFile => 
-            {
-              return fetch('templates/' + templateFile )
+            templates.map( templateData => {
+              return fetch('templates/' + templateData.template )
                     .then( res => res.text() )
                     .then( template => 
-                      {              
+                      {  
+                        templateVars.pageClass = templateData.class;
+                        templateVars.pageTitle = strings[templateData.title];
                         templateVars.content = new Function("return `" + template + "`;").call(templateVars); 
 
                         return ({
                           "content":  new Function("return `" + pageWrapper + "`;").call(templateVars),
-                          "filePath": linksPrefix + templates[ templateFile ],
+                          "filePath": linksPrefix + templateData.target,
                           "encoding": "utf-8" 
                         })
                       })
@@ -194,9 +234,10 @@ function translationInterface(parentElement) {
         return renderedFiles;
       })
       .then( renderedFiles =>{     
-        commitFiles('Rerender pages after translation change' , renderedFiles );
-          //location.reload();
-      })
+        return commitFiles('Rerender pages after translation change' , renderedFiles );
+      }).then(res=> {
+        parentElement.innerHTML = 'Done!';
+      });
   }
 
   parentElement.innerHTML = '<div id="translaitonInterface">'+fields+'</div>';

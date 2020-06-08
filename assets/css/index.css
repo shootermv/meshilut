@@ -98,7 +98,7 @@
     display: block;
     z-index: 1;
     opacity: 0.3;
-    background: url(/assets/images/FP_BlockBG.png) center center;
+    background: url(../../assets/images/FP_BlockBG.png) center center;
     opacity: 0.15;
     position: absolute;
     left: 0;
