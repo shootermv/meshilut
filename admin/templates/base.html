@@ -15,7 +15,7 @@
     <header id="head">
         <div class="inner">
             <div id="logo">
-                <a href="">
+                <a href="${ this.linksPrefix }">
                     <img width="120px" src="assets/images/logo.png" />
                 </a>
             </div>
@@ -43,8 +43,11 @@
                     <li class="menu-item menu-item-type-post_type menu-item-object-page">
                         <a href="${ this.linksPrefix }donations/" class="elementor-item">${ this.strings.Donations}</a>   
                     </li>
+                    <li class="menu-item menu-item-type-post_type menu-item-object-page">
+                        <a href="${ this.linksPrefix == '' ? 'en/' : '' }" class="elementor-item">${ this.strings.switchLanguage}</a>   
+                    </li>
                     <li class="searchLink">
-                        <a href="${ this.linksPrefix }/search/" class="elementor-item">חפש</a>   
+                        <a href="${ this.linksPrefix }/search/" class="elementor-item">${ this.strings.search}</a>   
                     </li>
                 </ul>
             </nav>

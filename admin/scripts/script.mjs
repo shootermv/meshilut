@@ -129,6 +129,7 @@ function translationInterface(parentElement) {
         translationItem.t[langkey] = document.getElementById(translationItem.key+'_'+langkey).value;
       })
     });
+
     let languages = ['','en'];
     
     let wrapperPath = 'templates/base.html';
@@ -184,6 +185,14 @@ function translationInterface(parentElement) {
       .then( filesResponses =>{ 
         return filesResponses.reduce((filesResponses, val) => filesResponses.concat(val), []);
       })
+      .then( renderedFiles=> { renderedFiles.push( 
+        {
+          "content": JSON.stringify(translations),
+          "filePath": 'admin/translations.json',
+          "encoding": "utf-8" 
+        });
+        return renderedFiles;
+      })
       .then( renderedFiles =>{     
         commitFiles('Rerender pages after translation change' , renderedFiles );
           //location.reload();
@@ -192,6 +201,28 @@ function translationInterface(parentElement) {
 
   parentElement.innerHTML = '<div id="translaitonInterface">'+fields+'</div>';
   parentElement.appendChild(submit);
+  //translationItem.key + '_' + langkey
+  
+  translations.filter(translationItem => translationItem.wysiwyg ==1 )
+              .forEach( translationItem => {               
+                  appSettings.Lanugages.forEach(languageCode=>{
+                    var suneditor = SUNEDITOR.create( translationItem.key+'_'+languageCode , {
+                      buttonList: [
+                          ['undo', 'redo'],
+                          ['bold','align', 'formatBlock', 'horizontalRule', 'list', 'table' ]
+                      ],
+                      formats: [
+                        "p",
+                        "h4"
+                      ],
+                    });                   
+                    
+                    suneditor.onChange = function( htmlContent ) {                      
+                      document.getElementById(translationItem.key+'_'+languageCode ).value = htmlContent;              
+                    };
+                  });                  
+              });  
+
 }
 
 /* update page with translated strings */

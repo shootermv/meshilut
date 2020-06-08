@@ -178,22 +178,11 @@
   text-decoration-color:rgb(255, 255, 255);
   text-decoration-line:none;
   text-decoration-style:solid;
-  text-size-adjust:100%;
-  transition-delay:0s;
-  transition-duration:0.4s;
-  transition-property:all;
-  transition-timing-function:ease;
-  white-space:nowrap;
-  /*width:106.875px;*/
-  -webkit-box-align:center;
-  -webkit-box-direction:normal;
-  -webkit-tap-highlight-color:rgba(0, 0, 0, 0);
-}
-#head nav a {
+  text-size-adjust:100%; 
   transition: 0.3s ease;
   border-top: 4px solid transparent;
   border-bottom: 4px solid transparent;
-  padding: 10px 20px 20px;
+  padding: 10px 17px 20px;
   padding-top: 30px;
   height: 50px;
 }
