@@ -141,6 +141,12 @@ function translationInterface(parentElement) {
           let templates = {
             'front.page.html':'index.html',
             'about.page.html':'about/index.html',
+            'news.page.html':'in-the-news/index.html',
+            'papers.page.html':'position-papers/index.html',
+            'articles.page.html':'posts/index.html',
+            'media.page.html':'media/index.html',
+            'contact.page.html':'contact-us/index.html',
+            'donations.page.html':'donations/index.html'
           };
 
           let strings = {};        
