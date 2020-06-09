@@ -66,23 +66,18 @@
         <section class='title'>
             <h1>undefined</h1>        
         </section>
-        <section class='aboutImage mainImage' style="background-image:url('/images/aboutUs.jpeg')">
-    <img width="160" height="107" src="http://meshilut.org/wp-content/uploads/2017/06/לוגו-התנועה-למשילות-ודמוקרטיה.png" class="attachment-full size-full" alt="" srcset="http://meshilut.org/wp-content/uploads/2017/06/לוגו-התנועה-למשילות-ודמוקרטיה.png 709w, http://meshilut.org/wp-content/uploads/2017/06/לוגו-התנועה-למשילות-ודמוקרטיה-300x200.png 300w" sizes="(max-width: 709px) 100vw, 709px">
-        <h2 class="">מי אנחנו?</h2>
-    </section>
-    <section class='team'>
-        <h3>הצוות שלנו</h3>
-        {% for teamMemeber in team %}
-            <article class="member">
-                <img src="/teamMemeber.img" />
-                <h4> {{ teamMemeber.name|upper }}</h4>
-                <div class="caption">
-                    {{ teamMemeber.desc }}
-                </div>
-            </article>
-        {% endfor %}
-    </section>
-    <section class="aboutText" style="background-image: url('/images/team.jpg')">
+        <section class='team'>
+    <h3>הצוות שלנו</h3>
+    <div id='stuffMemeber'></div>
+    <article class="member">
+        <img src="/teamMemeber.img" />
+        <h4> {{ teamMemeber.name|upper }}</h4>
+        <div class="caption">
+            {{ teamMemeber.desc }}
+        </div>
+    </article>
+</section>
+<section class="aboutText" style="background-image: url('/images/team.jpg')">
     התנועה עוסקת בשמירת האיזונים בין מרכיבי הדמוקרטיה השונים במדינת ישראל: הכרעת הרוב, זכויות הפרט, הגינות שלטונית ושקיפות.
 
     המוסד עוקב, חוקר, מפרסם, מקדם חקיקה ורפורמות בממשק שבין הרשות הנבחרת, המבטאת את הכרעות הרוב ואת היותה של ישראל מדינה יהודית לבין הרשות השופטת המופקדת על זכיות הפרט, מניעת שחיתות ושלטון החוק. 
@@ -102,7 +97,7 @@
     התנועה עוסקת בשמירת האיזונים בין מרכיבי הדמוקרטיה השונים במדינת ישראל: הכרעת הרוב, זכויות הפרט, הגינות שלטונית ושקיפות.
 
     המוסד עוקב, חוקר, מפרסם, מקדם חקיקה ורפורמות בממשק שבין הרשות הנבחרת, המבטאת את הכרעות הרוב ואת היותה של ישראל מדינה יהודית לבין הרשות השופטת המופקדת על זכיות הפרט, מניעת שחיתות ושלטון החוק. 
-    </section>
+</section>
     </main>
 </body>
 </html>
