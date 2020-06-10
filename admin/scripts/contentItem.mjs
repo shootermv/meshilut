@@ -14,7 +14,7 @@ export function contentItem ( contentType , ItemId ) {
 
   this.id = ItemId;
   this.type= contentType;
-  this.files= [];
+  this.attachments = {};
   
   this.seo = {};
 
@@ -30,7 +30,11 @@ export function contentItem ( contentType , ItemId ) {
       return ( returnAbsolutePath ? siteUrl: '' ) + typeData.urlPrefix + this.id;
   }
 
-  this.set = function( field, value ) {
+  this.setFile = ( field, value ) => {
+    this.attachments[field] = value;
+  }
+
+  this.set = ( field, value ) => {
     let fieldParts = field.split('.');
     let refferer = this;
     fieldParts.forEach((fieldName, i ) => {
@@ -46,7 +50,7 @@ export function contentItem ( contentType , ItemId ) {
   /**
    * Render all files for this item
    */
-  this.getRepositoryFiles = function(){
+  this.getRepositoryFiles = () => {
     /*** index.html ***/
     // TODO: Take laguages from settings...
     return renderPageHTML(this, ['', 'en'])
@@ -60,9 +64,9 @@ export function contentItem ( contentType , ItemId ) {
     })
     /*** Add Attachments ***/
     .then( files => {
-      if ( this.files.length == 0 )  return files;
-      let attachments = Object.keys(this.files).map( fieldName => ({
-          "content":  this.files[fieldName],
+      if ( this.attachments.length == 0 )  return files;
+      let attachments = Object.keys(this.attachments).map( fieldName => ({
+          "content":  this.attachments[fieldName],
           "filePath": this[fieldName],
           "encoding": "base64" 
       }));
@@ -75,6 +79,8 @@ export function contentItem ( contentType , ItemId ) {
    * @param languages 
    */
   let renderPageHTML = async function( editItemObj, languages ) {
+
+    let translations = utils.getGlobalVariable('translations');
 
     // TODO: Use impoprt to fetch templates
     return Promise.all([
@@ -100,7 +106,11 @@ export function contentItem ( contentType , ItemId ) {
           editedItem = translatedObject;
         }
 
+        let strings = {};        
+        translations.forEach(item => strings[item.key] = item.t[language==''?'he':language] );
+
         let templateVars = {
+            'strings': strings,
             'item': editedItem,
             'site_url':siteUrl
         } ;
@@ -214,7 +224,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
           case 'en':            
             formFields.unshift({ name: "title", label: "כותרת", type: "textfield"});
             formFields = formFields
-                          .filter( f=> f.type != 'file')
+                          .filter( f=> f.type != 'image')
                           .filter( f=> f.i18n !== false );
             dataObject = editedItem['en'];
           break;
@@ -237,75 +247,88 @@ export function contentItemForm ( contentType , editedItem , op ) {
         
         wrapper.appendChild(form);
         formFields.forEach( function(field) {
-              let fieldDiv = document.createElement('div');
-              fieldDiv.classList.add('form-element');
-              fieldDiv.classList.add(field.type);
+          let fieldDiv = document.createElement('div');
+          let inputField;
+          fieldDiv.classList.add('form-element');
+          fieldDiv.classList.add(field.type);
               
-              form.appendChild(fieldDiv);
+          form.appendChild(fieldDiv);
               
-              fieldDiv.innerHTML = `<label>${ field.label }</label>`;
+          fieldDiv.innerHTML = `<label>${ field.label }</label>`;
 
-              switch(field.type){
-                case 'id': 
-                  let idInput = document.createElement('input');
-                  idInput.value = editedItem.id;
-                  idInput.onkeyup = v => {
-                      editedItem.set( 'id' , v.target.value );
-                      urlPreview.innerText =  editedItem.getURL(true);
-                  };
-                  fieldDiv.appendChild(idInput);
-                  let urlPreview = document.createElement('span');
-                  urlPreview.className = 'siteUrlPreview'
+          switch(field.type){
+            case 'id': 
+              inputField = document.createElement('input');
+              inputField.value = editedItem.id;
+              inputField.onkeyup = v => {
+                  editedItem.set( 'id' , v.target.value );
                   urlPreview.innerText =  editedItem.getURL(true);
-                  fieldDiv.appendChild(urlPreview);
-                break;
-                case 'wysiwyg':
-                case 'textfield':
-                  let textarea = document.createElement('textarea');
-                  textarea.id='formitem_'+ field.name;
-                  textarea.name= field.name;
-                  textarea.className = field.type=='wysiwyg'?'wysiwyg_element':'';
-                  textarea.placeholder= field.placeholder;
-                  textarea.value = dataObject[field.name] ? dataObject[field.name] : '';
-                  fieldDiv.appendChild(textarea);
-                  textarea.onchange = function(event){
-                    let textValue = typeof event == 'string' ? event :  event.target.value;
-                    // fieldName with language prefix
-                    let fieldName = ( op == 'edit'?'':(op+'.'))+ field.name;
-                    editedItem.set( fieldName , textValue );
-                  }
-                break;
-                case 'file':
-                  fieldDiv.innerHTML += `<div class='preview'>
-                    ${ editedItem[field.name]? `<img src="${ siteUrl +'/'+editedItem[field.name]}" />` : '' }
-                  </div>`;
-                  let fileUploader = document.createElement('input');
-                  fieldDiv.appendChild(fileUploader);
-                  fileUploader.id='formitem_'+ field.name;
-                  fileUploader.name= field.name;
-                  fileUploader.type="file";
-                  fileUploader.onchange = function(event) {
-                    editedItem.set( field.name , editedItem.getURL(false)+ '/'+field.name+'.'+this.files[0].name.split('.').pop());
-                    var reader = new FileReader();
-                    let previewElement = wrapper.querySelector('.preview');
-                    previewElement.innerHTML = '';
+              };
+              fieldDiv.appendChild(inputField);
+              let urlPreview = document.createElement('span');
+              urlPreview.className = 'siteUrlPreview'
+              urlPreview.innerText =  editedItem.getURL(true);
+              fieldDiv.appendChild(urlPreview);
+            break;
+            case 'wysiwyg':
+            case 'textfield':
+              inputField = document.createElement('textarea');
+              inputField.id='formitem_'+ field.name;
+              inputField.name= field.name;
+              inputField.className = field.type=='wysiwyg'?'wysiwyg_element':'';
+              inputField.placeholder= field.placeholder;
+              inputField.value = dataObject[field.name] ? dataObject[field.name] : '';
+              fieldDiv.appendChild(inputField);
+            break;
+            case 'image':
+              fieldDiv.innerHTML += `<div class='preview'>
+                ${ editedItem[field.name]? `<img src="${ siteUrl +'/'+editedItem[field.name]}" />` : '' }
+              </div>`;
+              inputField = document.createElement('input');
+              fieldDiv.appendChild(inputField);
+              inputField.id='formitem_'+ field.name;
+              inputField.name= field.name;
+              inputField.type="file";
+            break;
+          }   
+               /** Handle fields change */
+          inputField.onchange = function(event) {
+            switch(field.type){
+              case 'id': 
+                editedItem.id = inputField.value;
+              break;
+              case 'wysiwyg':
+              case 'textfield':
+                let textValue = typeof event == 'string' ? event :  event.target.value;
+                // fieldName with language prefix
+                let fieldName = ( op == 'edit'?'':(op+'.'))+ field.name;
+                editedItem.set( fieldName , textValue );
+              break;
+              case 'image':
+                editedItem.set( field.name , editedItem.getURL(false)+ '/'+field.name+'.'+this.files[0].name.split('.').pop());
+                var reader = new FileReader();
+                let previewElement = wrapper.querySelector('.preview');
+                previewElement.innerHTML = '';
 
-                    reader.onload = function (evt) {
-                      var contents = reader.result;
-                      editedItem.files[field.name] =  contents.substr(contents.indexOf(',') + 1); 
+                reader.onload = function (evt) {
+                  var contents = reader.result;
+                  editedItem.setFile(field.name ,contents.substr(contents.indexOf(',') + 1)); 
 
-                      // preview image
-                      let image = document.createElement("img");
-                      image.src = contents;
-                      image.setAttribute('style','max-width:200px;max-heigth:200px;'); 
-                      
-                      previewElement.appendChild(image);
-                    }
-                    reader.readAsDataURL(this.files[0]);
-                  }
-                break;
-              }            
+                  // preview image
+                  let image = document.createElement("img");
+                  image.src = contents;
+                  image.setAttribute('style','max-width:200px;max-heigth:200px;'); 
+                  
+                  previewElement.appendChild(image);
+                }
+                reader.readAsDataURL(this.files[0]);
+              break;
+            }
+          }
         });
+              
+       
+       
         let submitButtons = document.createElement('div');
         let cancelButton = document.createElement('button');
         cancelButton.innerText = 'בטל';
@@ -370,6 +393,11 @@ export function contentItemForm ( contentType , editedItem , op ) {
               indexedItem.teaser = editedItem.title;
               indexedItem.href = editedItem.getURL(false);
               indexedItem.body = getSearchableString();
+              let imageField = typeData.fields.find( f => f.type=='image' );
+              if( editedItem[imageField.name] ) {
+                indexedItem.img = editedItem[imageField.name];
+              }
+
               if( fileJson.find( fileItem=> fileItem.id== editedItem.id) ) {
                 let foundItem =  fileJson.find( fileItem=> fileItem.id== editedItem.id); 
                 fileJson[fileJson.indexOf(foundItem)] = indexedItem;
@@ -391,7 +419,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
    */
   let getSearchableString = function() {
     let words = typeData.fields            
-                .filter(f => f.type != 'file')
+                .filter(f => f.type != 'image')
                 .filter(f=> ['id'].indexOf(f.name) )
                 .filter(f=> editedItem[f.name] )
                 .map(f => editedItem[f.name].replace(/(<([^>]+)>)/ig," "))

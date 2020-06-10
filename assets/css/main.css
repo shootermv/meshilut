@@ -13,7 +13,7 @@
     display: none;
 }
 
-#main section.title.about img, #main section.title.index img {
+#main section.about img, #main section.index img {
     margin-top: 40px;
     height: 190px;
     z-index: 2;
@@ -105,7 +105,7 @@
     margin-top: 120px;
 }
 
-#main section.title button.donation {
+#main button.donation {
     background: #6ec1e4;
     padding: 25px 30px;
     border: none;

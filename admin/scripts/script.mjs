@@ -34,7 +34,7 @@ export function routeToCall(){
       loadSystemFile( 'contentTypes', './contentTypes.json', function(){
         if( getGlobalVariable('contentTypes').length > 0 ) {
           let contentTypesSingle = '(' + getGlobalVariable('contentTypes').map(a=>a.name).join('|') +')';
-          regexExpressions.itemManagment = new RegExp('#'+contentTypesSingle+'\\/((\\d+)|new|all)',"i");
+          regexExpressions.itemManagment = new RegExp('#'+contentTypesSingle+'\\/([^\/]+)',"i");
              
           getGlobalVariable('contentTypes').reverse().forEach(contentType => {
             document.getElementById('sidebarLinks').insertAdjacentHTML('afterbegin',  `

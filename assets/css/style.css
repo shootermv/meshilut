@@ -409,13 +409,44 @@
   display: none;
 }
 
-#main.AboutUs > h1
-{
-  height: 378px;
-  color:red;
+#main.articles , 
+#main.AboutUs {
+    width: 1000px;
+    margin: 0 auto;
 }
 
-#main.AboutUs > h1::after {
+#main.AboutUs .title  {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+#main.frontPage .title {
+  display: none;
+}
+
+#main.AboutUs .title h1
+{
+  font-size: 61px;
+  color: #fff;
+  margin-top: 30px;
+}
+
+#main.AboutUs .title h1::before {
+  content: ' ';
+  background: url(../images/logo.png) center center no-repeat;  
+  background-size: auto 190px;
+  height: 190px;
+  width: 400px;
+  display: block;
+}
+
+#main.AboutUs {
+  background-color:
+}
+
+#main.AboutUs::before {
   content: ' ';
   display: block;
   z-index: 1;
@@ -423,8 +454,8 @@
   left: 0;
   top: 0;
   width: 100%;
-  height: 100%;
-  background: url(../images/aboutUs.jpeg) center center no-repeat;
+  height: 500px;
+  background: url(../images/aboutUs.jpeg) center center no-repeat #000;
   background-size: 98% auto;
 }
 

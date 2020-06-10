@@ -8,7 +8,7 @@
         "urlPrefix":"post/",
         "fields":[
             {"name":"body","label":"תוכן","type":"wysiwyg", "placeholder":"גוף הפוסט"},
-            {"name":"image","label":"תמונה","type":"file", "i18n":false}
+            {"name":"image","label":"תמונה","type":"image", "i18n":false}
         ]
     },
     {  
@@ -19,7 +19,7 @@
         "labelDefinedPlural":"פריטי החדשות",
         "fields":[
             {"name":"body","label":"תוכן","type":"wysiwyg"},
-            {"name":"image","label":"תמונה","type":"file", "i18n":false}
+            {"name":"image","label":"תמונה","type":"image", "i18n":false}
         ]
     },
     {  
@@ -33,13 +33,24 @@
         ]
     },
     {  
+        "name":"member",
+        "label":"חבר צוות",
+        "labelPlural":"חברי צוות",
+        "labelDefinedPlural":"חברי הצוות",
+        "urlPrefix":"team-member/",
+        "fields":[
+            {"name":"about","label":"אודות","type":"wysiwyg", "placeholder":"גוף הפוסט"},
+            {"name":"image","label":"תמונה","type":"image", "i18n":false}
+        ]
+    },
+    {  
         "name":"papers",
         "label":"ניירות עמדה",
         "urlPrefix":" papers/",
         "labelPlural":"ניירות עמדה",
         "labelDefinedPlural":"ניירות העמדה",
         "fields":[
-            {"name":"paper","label":"מסמך","type":"file", "i18n": false}
+            {"name":"paper","label":"מסמך","type":"image", "i18n": false}
         ]
     }
 ]
