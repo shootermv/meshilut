@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
     <head>
-        <base href = "https://arielberg.github.io/meshilut/" />
+        <base href = "http://localhost:8080/" />
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" type="text/css" href="assets/css/style.css">
@@ -13,7 +13,7 @@
         <link rel="icon" href="assets/images/favicon.ico" sizes="16x16">
         <title>התנועה למשילות ודמוקרטיה - undefined</title>
     </head>
-<body class="AboutUs">
+<body>
     <header id="head">
         <div class="inner">
             <div id="logo">
@@ -62,7 +62,7 @@
             <i id='mobileMenuToggle' class="fas fa-bars"></i>
         </div>
     </header>
-    <main id="main">        
+    <main id="main" class="AboutUs">        
         <section class='title'>
             <h1>undefined</h1>        
         </section>
@@ -72,24 +72,26 @@
     <script>
         fetch('search/member.json')
         .then(r=>r.json())
-        .then(members=>{             
-            let member = document.createElement('article');
-            member.className = "member";
+        .then(members=>{ 
+            members.forEach( memberData => {
+                let member = document.createElement('article');
+                member.className = "member";
+                
+                let img = document.createElement('img');
+                img.src = memberData.img;
+                member.appendChild(img);
 
-            let img = document.createElement('img');
-            img.src = member.img;
-            member.appendChild(img);
+                let title = document.createElement('h4');
+                title.innerText = memberData.title;
+                member.appendChild(title);
 
-            let title = document.createElement('h4');
-            title.innerText = member.title;
-            member.appendChild(title);
+                let body = document.createElement('div');
+                body.className = 'caption';
+                body.innerText = memberData.body;
+                member.appendChild(body);
 
-            let body = document.createElement('div');
-            body.className = 'caption';
-            body.innerText = member.body;
-            member.appendChild(body);
-
-            document.getElementById('members').appendChild(member);
+                document.getElementById('members').appendChild(member);
+            });
         })
         
     </script>

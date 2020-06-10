@@ -195,7 +195,6 @@ function translationInterface(parentElement) {
          
           let templateVars = {
               'strings': strings,
-              'pageTitle': 'Front Page',
               'site_url': appSettings['Site_Url'],
               'direction':'rtl',
               'linksPrefix': linksPrefix

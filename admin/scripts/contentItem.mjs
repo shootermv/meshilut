@@ -224,7 +224,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
           case 'en':            
             formFields.unshift({ name: "title", label: "כותרת", type: "textfield"});
             formFields = formFields
-                          .filter( f=> f.type != 'image')
+                          .filter( f=> ['image','file'].indexOf(f.type) == -1 )
                           .filter( f=> f.i18n !== false );
             dataObject = editedItem['en'];
           break;
@@ -280,10 +280,11 @@ export function contentItemForm ( contentType , editedItem , op ) {
               inputField.value = dataObject[field.name] ? dataObject[field.name] : '';
               fieldDiv.appendChild(inputField);
             break;
-            case 'image':
+            case 'image':           
               fieldDiv.innerHTML += `<div class='preview'>
                 ${ editedItem[field.name]? `<img src="${ siteUrl +'/'+editedItem[field.name]}" />` : '' }
               </div>`;
+            case 'file':
               inputField = document.createElement('input');
               fieldDiv.appendChild(inputField);
               inputField.id='formitem_'+ field.name;
@@ -305,10 +306,9 @@ export function contentItemForm ( contentType , editedItem , op ) {
                 editedItem.set( fieldName , textValue );
               break;
               case 'image':
+              case 'file':
                 editedItem.set( field.name , editedItem.getURL(false)+ '/'+field.name+'.'+this.files[0].name.split('.').pop());
-                var reader = new FileReader();
-                let previewElement = wrapper.querySelector('.preview');
-                previewElement.innerHTML = '';
+                var reader = new FileReader();               
 
                 reader.onload = function (evt) {
                   var contents = reader.result;
@@ -318,8 +318,10 @@ export function contentItemForm ( contentType , editedItem , op ) {
                   let image = document.createElement("img");
                   image.src = contents;
                   image.setAttribute('style','max-width:200px;max-heigth:200px;'); 
-                  
-                  previewElement.appendChild(image);
+                  if ( field.type == 'image' ) {
+                    let previewElement = wrapper.querySelector('.preview');
+                    previewElement.appendChild(image);
+                  }
                 }
                 reader.readAsDataURL(this.files[0]);
               break;
@@ -393,8 +395,9 @@ export function contentItemForm ( contentType , editedItem , op ) {
               indexedItem.teaser = editedItem.title;
               indexedItem.href = editedItem.getURL(false);
               indexedItem.body = getSearchableString();
+              
               let imageField = typeData.fields.find( f => f.type=='image' );
-              if( editedItem[imageField.name] ) {
+              if( imageField && editedItem[imageField.name] ) {
                 indexedItem.img = editedItem[imageField.name];
               }
 

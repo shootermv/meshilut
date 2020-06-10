@@ -50,7 +50,8 @@
         "labelPlural":"ניירות עמדה",
         "labelDefinedPlural":"ניירות העמדה",
         "fields":[
-            {"name":"paper","label":"מסמך","type":"image", "i18n": false}
+            {"name":"body","label":"תקציר","type":"wysiwyg", "placeholder":"גוף הפוסט"},
+            {"name":"paper","label":"מסמך","type":"file", "i18n": false}
         ]
     }
 ]
