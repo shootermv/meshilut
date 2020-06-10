@@ -409,31 +409,31 @@
   display: none;
 }
 
-#main.articles , 
-#main.AboutUs {
+body.articles #main , 
+body.AboutUs #main  {
     width: 1000px;
     margin: 0 auto;
 }
 
-#main.AboutUs .title  {
+body.AboutUs #main .title  {
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
 }
 
-#main.frontPage .title {
+.frontPage #main .title {
   display: none;
 }
 
-#main.AboutUs .title h1
+body.AboutUs #main  .title h1
 {
   font-size: 61px;
   color: #fff;
   margin-top: 30px;
 }
 
-#main.AboutUs .title h1::before {
+body.AboutUs #main .title h1::before {
   content: ' ';
   background: url(../images/logo.png) center center no-repeat;  
   background-size: auto 190px;
@@ -442,11 +442,11 @@
   display: block;
 }
 
-#main.AboutUs {
+body.AboutUs #main {
   background-color:
 }
 
-#main.AboutUs::before {
+body.AboutUs #main::before {
   content: ' ';
   display: block;
   z-index: 1;
