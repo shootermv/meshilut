@@ -355,11 +355,11 @@ export function contentItemForm ( contentType , editedItem , op ) {
             })
           })
           .then(files => {
-            commitFiles('Save '+ contentType +': ' + editedItem.id , files );
-          })
-          .then(res => {
-            utils.gotoList( contentType );
-          });          
+            commitFiles('Save '+ contentType +': ' + editedItem.id , files )
+            .then(res => {
+              utils.gotoList( contentType );
+            }); 
+          })         
         }
 
         submitButtons.appendChild(submitButton);
