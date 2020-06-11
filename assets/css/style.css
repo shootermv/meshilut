@@ -426,14 +426,18 @@ body.AboutUs #main .title  {
   display: none;
 }
 
-body.AboutUs #main  .title h1
+body.AboutUs #main  .title h1,
+body.donations #main  .title h1
 {
   font-size: 61px;
   color: #fff;
   margin-top: 30px;
+  text-align: center;
+  border: 0 none;
 }
 
-body.AboutUs #main .title h1::before {
+body.AboutUs #main .title h1::before, 
+body.donations #main  .title h1 {
   content: ' ';
   background: url(../images/logo.png) center center no-repeat;  
   background-size: auto 190px;
