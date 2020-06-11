@@ -411,7 +411,7 @@
 
 body:not(.frontPage) #main {
     width: 1000px;
-    margin: 0 auto;
+    margin: 100px auto;
 }
 
 body.AboutUs #main .title  {
@@ -419,6 +419,7 @@ body.AboutUs #main .title  {
   flex-direction: column;
   align-items: center;
   position: relative;
+  height:500px;
 }
 
 .frontPage #main .title {
@@ -439,6 +440,7 @@ body.AboutUs #main .title h1::before {
   height: 190px;
   width: 400px;
   display: block;
+  margin-top: 100px;
 }
 
 body.AboutUs #main {

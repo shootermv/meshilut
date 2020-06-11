@@ -357,6 +357,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
                   image.setAttribute('style','max-width:200px;max-heigth:200px;'); 
                   if ( field.type == 'image' ) {
                     let previewElement = wrapper.querySelector('.preview');
+                    previewElement.innerHTML = '';
                     previewElement.appendChild(image);
                   }
                 }

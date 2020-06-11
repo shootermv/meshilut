@@ -18,6 +18,7 @@ body.AboutUs #main section.about img, body.frontPage #main section.movie1 img {
     height: 190px;
     z-index: 2;
 }
+
 .aboutImage
 {
     background-size: 100% 400px;
@@ -55,6 +56,10 @@ body.AboutUs  {
     background-color: #fff;
     max-width: 250px;
     margin:20px;
+    box-shadow: 0px 0px 50px 0px rgba(15,15,43,0.66);
+    transition: background 0.3s, border 0.3s, border-radius 0.3s, box-shadow 0.3s;
+    margin: 15px 15px 15px 15px;
+    padding: 60px 30px 60px 30px;
 }
 
 #main {
