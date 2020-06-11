@@ -25,6 +25,51 @@ export function contentItem ( contentType , ItemId ) {
   let siteUrl = appSettings['Site_Url'];
   let typeData = utils.getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
   
+  this.validate = () => {
+    let errors = {};
+    if( ['','new'].indexOf(this.id) > -1 )  {
+      errors.id = 'Id is required';
+    }
+    if( !this.title ) {
+      errors.title = 'Title is required';
+    }
+
+    return errors;
+  }
+
+  this.render = ( language ) => {
+    let output = '';
+    
+    typeData.fields.forEach( f => { 
+      let value = '';
+      if( ['image','field'].indexOf(f.type) > -1 || f.i18n === false ) {
+        value = this[f.name]
+      }
+      else {
+        if ( language != '') {
+          value = this[language][f.name];
+        }
+        else {
+          value = this[f.name];
+        }
+      }
+      output+= this.renderField( f, value , language );
+    }); 
+    return output;
+  }
+
+  this.renderField = ( fieldData, value , language ) => {
+    let fieldContent = value;
+    switch ( fieldData.type ) {
+      case "image":
+        fieldContent = '<img src="'+value+'" />';
+      break;
+      case "file":
+        fieldContent = '<a href="'+value+'" >' + utils.t('viewFile', language) + '</a>';
+      break;
+    }
+    return `<div class='field field-${fieldData.type} f-${fieldData.name}'>${fieldContent}</div>`;
+  }
 
   this.getURL = returnAbsolutePath => {
       return ( returnAbsolutePath ? siteUrl: '' ) + typeData.urlPrefix + this.id;
@@ -53,7 +98,7 @@ export function contentItem ( contentType , ItemId ) {
   this.getRepositoryFiles = () => {
     /*** index.html ***/
     // TODO: Take laguages from settings...
-    return renderPageHTML(this, ['', 'en'])
+    return renderPage(this, ['', 'en'])
     .then(files => {
       /*** index.json ***/
       return files.concat([{
@@ -78,8 +123,9 @@ export function contentItem ( contentType , ItemId ) {
    * Render all files for deleted item 404
    */
   this.get404ItemFiles = () => {
+    this.title = 'Page does not exists';
     /*** index.html ***/
-    return renderPageHTML( this, ['', 'en'], true )
+    return renderPage( this, ['', 'en'], true )
     .then(files => {
       /*** index.json ***/
       return files.concat([{
@@ -94,7 +140,7 @@ export function contentItem ( contentType , ItemId ) {
    * Render index pages using html templates
    * @param languages 
    */
-  let renderPageHTML = async function( editItemObj, languages , isDeleted ) {
+  let renderPage = async function( editItemObj, languages , isDeleted ) {
 
     let translations = utils.getGlobalVariable('translations');
     let innerPageRendererTemplate = 'templates/genericInner.html';
@@ -105,39 +151,22 @@ export function contentItem ( contentType , ItemId ) {
       fetch('templates/base.html').then(result=> result.text()),
       fetch( innerPageRendererTemplate ).then(result=> result.text()),
     ])
-    .then( templates =>{
-      return Promise.all( languages.map( language =>{
-
-        let editedItem = editItemObj;
-        if(language!='') {
-          let translatedObject = { 
-            id: editedItem.id, 
-            files: editedItem.files 
-          };
-          typeData.fields.forEach( f => { 
-            if( f.i18n === false ) {
-              translatedObject[f.name] = editedItem[f.name]
-            }
-            else {
-              translatedObject[f.name] = editedItem[language][f.name];
-            }
-          }); 
-          editedItem = translatedObject;
-        }
+    .then( templates => {
+      return Promise.all( languages.map( language => {
 
         let strings = {};        
         translations.forEach(item => strings[item.key] = item.t[language==''?'he':language] );
 
         let templateVars = {
             'strings': strings,
-            'item': editedItem,
             'site_url':siteUrl,
             'direction':'rtl',
             'linksPrefix':  language + (language==''?'':'/'),
-            'pageTitle': editedItem.title,
-            'pageClass': 'itemPage '+editedItem.type
+            'pageTitle': language=='' ? editItemObj.title: editItemObj[language].title,
+            'pageClass': 'itemPage '+ editItemObj.type
         } ;
-        templateVars.content = new Function("return `"+templates[1] +"`;").call(templateVars); 
+
+        templateVars.content = editItemObj.render(language);
          
         return {
           "content":  new Function("return `"+templates[0] +"`;").call(templateVars),
@@ -173,8 +202,10 @@ export async function contentItemLoader ( contentType , ItemId ) {
   
   if( localStorage[ contentObject.type + '/' + contentObject.id ] ) { // item is in editing process
     let cachedData = JSON.parse(localStorage[ contentObject.type + '/' + contentObject.id ]);
-    let mergedObject = { ...contentObject, ...cachedData };
-    return mergedObject;
+    Object.keys(cachedData).forEach(field =>{
+      contentObject[field] = cachedData[field];
+    });
+    return contentObject;   
   }
   else {
     // load item details
@@ -232,7 +263,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
           editedItem.get404ItemFiles()
           /*** Update Searchable List ***/ 
           .then( files => {
-            return getUpdatedSearchFile('search/'+contentType+'.json').then( searchFiles => {
+            return getUpdatedSearchFile('search/'+contentType+'.json', true).then( searchFiles => {
               return  files.concat(searchFiles);
             })
           })
@@ -287,7 +318,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
           let inputField;
           fieldDiv.classList.add('form-element');
           fieldDiv.classList.add(field.type);
-              
+          fieldDiv.id = 'formField_'+field.name;  
           form.appendChild(fieldDiv);
               
           fieldDiv.innerHTML = `<label>${ field.label }</label>`;
@@ -328,8 +359,14 @@ export function contentItemForm ( contentType , editedItem , op ) {
               inputField.type="file";
             break;
           }   
-               /** Handle fields change */
+          let fieldError = document.createElement('span');
+          fieldError.className = 'alert alert-danger';
+          fieldError.style.display = 'none';
+          fieldDiv.appendChild(fieldError);
+
+          /** Handle fields change */
           inputField.onchange = function(event) {
+          
             switch(field.type){
               case 'id': 
                 editedItem.id = inputField.value;
@@ -363,6 +400,18 @@ export function contentItemForm ( contentType , editedItem , op ) {
                 reader.readAsDataURL(this.files[0]);
               break;
             }
+
+
+            // revalidate field
+            let errors = editedItem.validate();
+            if( Object.keys(errors).indexOf(field.name) == -1 ) {
+              document.querySelector('#formField_'+field.name+' .alert').style.display = 'none';
+            }
+            else {
+              document.querySelector('#formField_'+field.name+' .alert').innerHTML = errors[field.name];
+              document.querySelector('#formField_'+field.name+' .alert').style.display = 'block';
+            }
+
           }
         });
               
@@ -386,6 +435,16 @@ export function contentItemForm ( contentType , editedItem , op ) {
          * Submit item
          */
         submitButton.onclick = function() {
+          let formErrors = editedItem.validate();
+          if ( Object.keys(formErrors).length > 0 ) {
+              Object.keys(formErrors).forEach(errorField=>{
+                let errorContainer = document.querySelector('#formField_'+errorField+' .alert');
+                errorContainer.innerHTML = formErrors[errorField];
+                errorContainer.style.display = 'block';
+              })
+            return;
+          }
+
           editedItem.getRepositoryFiles()
           /*** Update Searchable List ***/ 
           .then( files => {
@@ -420,31 +479,34 @@ export function contentItemForm ( contentType , editedItem , op ) {
    * 
    * @param {*} filePath 
    */
-  let getUpdatedSearchFile = function ( filePath ) {
+  let getUpdatedSearchFile = function ( filePath , isDeleted ) {
     let APIconnect = utils.getGlobalVariable('gitApi');
     return APIconnect
             .getFile ('/search/'+contentType+'.json')
             .then(response => JSON.parse(response))
             .catch(error => [])
             .then( fileJson => {
-              var indexedItem = {};
-              indexedItem.id = editedItem.id;
-              indexedItem.title = editedItem.title;
-              indexedItem.teaser = editedItem.title;
-              indexedItem.href = editedItem.getURL(false);
-              indexedItem.body = getSearchableString();
+              let currentItem = fileJson.find( fileItem=> fileItem.id== editedItem.id); 
+              fileJson = fileJson.filter( fileItem=> fileItem.id != editedItem.id );
 
-              let imageField = typeData.fields.find( f => f.type=='image' );
-              if( imageField && editedItem[imageField.name] ) {
-                indexedItem.img = editedItem[imageField.name];
-              }
+              if ( !isDeleted ) {
+                var indexedItem = {};
+                if (! currentItem ) {
+                  indexedItem = currentItem;
+                }
+                let teaserField = typeData.fields.find(f=>['wysiwyg','textfield'].indexOf(f.type) > -1);
+                indexedItem.id = editedItem.id;
+                indexedItem.title = editedItem.title;
+                indexedItem.teaser = editedItem[teaserField.name];
+                indexedItem.href = editedItem.getURL(false);
+                indexedItem.body = getSearchableString();
 
-              if( fileJson.find( fileItem=> fileItem.id== editedItem.id) ) {
-                let foundItem =  fileJson.find( fileItem=> fileItem.id== editedItem.id); 
-                fileJson[fileJson.indexOf(foundItem)] = indexedItem;
-              }
-              else {
-                fileJson.push(indexedItem);
+                let imageField = typeData.fields.find( f => f.type=='image' );
+                if( imageField && editedItem[imageField.name] ) {
+                  indexedItem.img = editedItem[imageField.name];
+                }
+
+                fileJson.push(indexedItem);              
               }
 
               return [{
@@ -513,8 +575,8 @@ export function contentList( parentElement, contentType ) {
                         `<tr>
                           <td>${item.id}</td>
                           <td>
-                            <a href=${'#'+ contentType +'/'+item.id}>ערוך</a>
-                            <a style='margin-right:20px;' href=${'#post/'+item.id+'/delete'}>מחק</a>
+                            <a href=${'#' + contentType + '/'+item.id}>ערוך</a>
+                            <a style='margin-right:20px;' href=${'#' + contentType + '/'+item.id+'/delete'}>מחק</a>
                           </td>
                           
                           <td>${item.title}</td>

@@ -60,7 +60,14 @@ export let loadSystemFile = function( variableName , filePath, onSuccess ) {
         console.error( 'Error Loading system file', error , variableName , filePath );
       });
   }
-  
+/**
+ * Get translation string by string key
+ */
+export let t = function( translationKey, language ) {
+  let translations = getGlobalVariable('translations');
+  return translations.find(t=>t.key == translationKey ).t[ language==''?'he': language ]
+}
+
  /**
  * Close edit page (navigate to content type list)
  */

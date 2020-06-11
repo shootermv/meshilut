@@ -46,7 +46,7 @@
     {  
         "name":"papers",
         "label":"ניירות עמדה",
-        "urlPrefix":" papers/",
+        "urlPrefix":"papers/",
         "labelPlural":"ניירות עמדה",
         "labelDefinedPlural":"ניירות העמדה",
         "fields":[
