@@ -106,9 +106,10 @@ body .itemPage #main {
 }
 
 #main section.title h1{
-    color: #6ec1e4;
-    font-size: 97px;
-    margin-top: 120px;
+    color: #666;
+    font-size: 36px;
+    margin-top: 150px;
+    border-bottom: 1px dotted;
 }
 
 #main button.donation {

@@ -1,19 +1,17 @@
-<h1>{% trans 'WelcomeHeading' %}</h1>
-<div id="main"> 
-{% for paperItem in items %}
-    <div class="paper-row">
-        <div class="summary">  
-            <h2>{{ paperItem.title }}</h2>
-            <p>{{ paperItem.body }}</p>
-        </div> 
-        <div class="link-container">
-            <a href="http://meshilut.org/w-משפטיים-של-משרדי-הממשלה-1.pdf" target="_blank"  role="button">
-                <span class="wrapper">                 
-                    <span class="elementor-button-text">קרא עוד</span>
-                    <i class="fa fa-angle-double-left" aria-hidden="true"></i> 
-                </span>
-            </a>
-        </div>              
-    </div>
-{% endfor %}
-</div>
+<script>
+    fetch('search/paper.json')
+        .then(res=>res.json())
+        .then(jsonItems=>{
+            jsonItems.forEach( jsonItem => {
+                let itemDiv = document.createElement('div');
+                itemDiv.className = "paper-row";
+                let itemTitle = document.createElement('h3');
+                itemTitle.innerText = jsonItem.title;
+                itemDiv.append(itemTitle);
+                let itemTeaser = document.createElement('span');
+                itemTeaser.innerText = jsonItem.body;
+                itemDiv.append(itemTeaser);
+                document.getElementById('main').appendChild(itemDiv);
+            });                
+        });        
+</script> 
