@@ -38,18 +38,18 @@
     background-size: cover;
 }
 
-#main section.movie1.index::after {
+#main section.movie1::after {
     background: #0280aF;
     opacity: 0.4;
 }
 
-#main section.movie1.index {
+#main section.movie1 {
     background: none;
     position: relative;
     overflow: hidden;
 }
 
-#main section.movie1.index .video-bgr {
+#main section.movie1 .video-bgr {
     position: absolute;
     width: 100%;
     height: 350px;
@@ -58,7 +58,7 @@
     z-index:-1;
 } 
 
-#main section.movie1.index .shape-bottom {
+#main section.movie1 .shape-bottom {
     transform: rotate(180deg);
     width: 100%;
     flex: 1;
@@ -124,7 +124,7 @@
     margin-top: -40px;
 }
 
-#main section.movie1.index .shape-bottom .shape-fill {
+#main section.movie1 .shape-bottom .shape-fill {
     fill:#fff;
 }
 
