@@ -143,49 +143,49 @@ function translationInterface(parentElement) {
             { 
               template:'front.page.html',
               target:'index.html',
-              title:'frontPage',
+              title:'frontPageTitle',
               class:'frontPage'
             },
             { 
               template:'about.page.html',
               target:'about/index.html',
-              title:'AboutUs',
+              title:'aboutUsPageTitle',
               class:'AboutUs'
             },
             { 
               template:'news.page.html',
               target:'in-the-news/index.html',
-              title:'news',
+              title:'newsPageTitle',
               class:'news'
             },
             { 
               template:'papers.page.html',
               target:'position-papers/index.html',
-              title:'papers',
+              title:'papersPageTitle',
               class:'papers'
             },
             { 
               template:'articles.page.html',
               target:'posts/index.html',
-              title:'articles',
+              title:'articlesPageTitle',
               class:'articles'
             },
             { 
               template:'media.page.html',
               target:'media/index.html',
-              title:'media',
+              title:'mediaPageTitle',
               class:'media'
             },
             { 
               template:'contact.page.html',
               target:'contact-us/index.html',
-              title:'contact',
+              title:'contactPageTitle',
               class:'contact'
             },
             { 
               template:'donations.page.html',
               target:'donations/index.html',
-              title:'donations',
+              title:'donationsPageTitle',
               class:'donations'
             }
           ];

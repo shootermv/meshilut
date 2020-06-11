@@ -79,7 +79,6 @@ export function contentItem ( contentType , ItemId ) {
    */
   this.get404ItemFiles = () => {
     /*** index.html ***/
-    this.title = 'Page Does not Exists.'
     return renderPageHTML( this, ['', 'en'], true )
     .then(files => {
       /*** index.json ***/
@@ -99,7 +98,7 @@ export function contentItem ( contentType , ItemId ) {
 
     let translations = utils.getGlobalVariable('translations');
     let innerPageRendererTemplate = 'templates/genericInner.html';
-    if ( isDeleted ) innerPageRendererTemplate = 'templates/genericInner.html'; 
+    if ( isDeleted ) innerPageRendererTemplate = 'templates/404.html'; 
 
     // TODO: Use impoprt to fetch templates
     return Promise.all([
