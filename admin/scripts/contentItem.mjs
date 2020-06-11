@@ -73,22 +73,42 @@ export function contentItem ( contentType , ItemId ) {
       return files.concat(attachments);
     })
   }
-    
+  
+  /**
+   * Render all files for deleted item 404
+   */
+  this.get404ItemFiles = () => {
+    /*** index.html ***/
+    this.title = 'Page Does not Exists.'
+    return renderPageHTML( this, ['', 'en'], true )
+    .then(files => {
+      /*** index.json ***/
+      return files.concat([{
+        "content":  '',
+        "filePath": this.getURL(false)+'/index.json',
+        "encoding": "utf-8" 
+      }]);
+    })
+  }
+
   /**
    * Render index pages using html templates
    * @param languages 
    */
-  let renderPageHTML = async function( editItemObj, languages ) {
+  let renderPageHTML = async function( editItemObj, languages , isDeleted ) {
 
     let translations = utils.getGlobalVariable('translations');
+    let innerPageRendererTemplate = 'templates/genericInner.html';
+    if ( isDeleted ) innerPageRendererTemplate = 'templates/genericInner.html'; 
 
     // TODO: Use impoprt to fetch templates
     return Promise.all([
       fetch('templates/base.html').then(result=> result.text()),
-      fetch('templates/genericInner.html').then(result=> result.text()),
+      fetch( innerPageRendererTemplate ).then(result=> result.text()),
     ])
     .then( templates =>{
       return Promise.all( languages.map( language =>{
+
         let editedItem = editItemObj;
         if(language!='') {
           let translatedObject = { 
@@ -112,7 +132,11 @@ export function contentItem ( contentType , ItemId ) {
         let templateVars = {
             'strings': strings,
             'item': editedItem,
-            'site_url':siteUrl
+            'site_url':siteUrl,
+            'direction':'rtl',
+            'linksPrefix':  language + (language==''?'':'/'),
+            'pageTitle': editedItem.title,
+            'pageClass': 'itemPage '+editedItem.type
         } ;
         templateVars.content = new Function("return `"+templates[1] +"`;").call(templateVars); 
          
@@ -159,8 +183,10 @@ export async function contentItemLoader ( contentType , ItemId ) {
             .then( res => { return res.json() })
             .then( loadedItemDetails => {
                 // init to the default value
-                let mergedObject = { ...contentObject, ...loadedItemDetails };
-                return mergedObject;       
+                Object.keys(loadedItemDetails).forEach(field =>{
+                  contentObject[field] = loadedItemDetails[field];
+                });
+                return contentObject;       
             })
             .catch(err=> {
               return contentObject
@@ -203,10 +229,21 @@ export function contentItemForm ( contentType , editedItem , op ) {
             <button className='cancel' onclick="location.href='#${ contentType }/all'">לא</button>
           </div>
         </div>`;
-        wrapper.querySelector('#approveDelete').onclick = function(event){
-        //TODO: Support delete
-        alert('TODO: currently unsuported!')
-      }
+        wrapper.querySelector('#approveDelete').onclick = (event) => {
+          editedItem.get404ItemFiles()
+          /*** Update Searchable List ***/ 
+          .then( files => {
+            return getUpdatedSearchFile('search/'+contentType+'.json').then( searchFiles => {
+              return  files.concat(searchFiles);
+            })
+          })
+          .then(files => {
+            commitFiles('Delete '+ contentType +': ' + editedItem.id , files )
+            .then(res => {
+              utils.gotoList( contentType );
+            }); 
+          });
+        }
       break;
       case 'edit':
       case 'new':
@@ -335,12 +372,12 @@ export function contentItemForm ( contentType , editedItem , op ) {
         let cancelButton = document.createElement('button');
         cancelButton.innerText = 'בטל';
         cancelButton.className = 'cancel';
-        cancelButton.onclick = function(){
+        cancelButton.onclick = ( ()=> {
           if( confirm('האם אתה בטוח?') ) {
-            localStorage.removeItem(editedItem.type+'/'+requestedItemId);
+            localStorage.removeItem(editedItem.type+'/' + editedItem.id);
             utils.gotoList(editedItem.type);
           }
-        }
+        });
         let submitButton = document.createElement('button');
         submitButton.className = 'submit';
         submitButton.innerText = 'שמור';
@@ -359,6 +396,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
           .then(files => {
             commitFiles('Save '+ contentType +': ' + editedItem.id , files )
             .then(res => {
+              localStorage.removeItem( editedItem.type+'/' + editedItem.id );
               utils.gotoList( contentType );
             }); 
           })         
@@ -395,7 +433,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
               indexedItem.teaser = editedItem.title;
               indexedItem.href = editedItem.getURL(false);
               indexedItem.body = getSearchableString();
-              
+
               let imageField = typeData.fields.find( f => f.type=='image' );
               if( imageField && editedItem[imageField.name] ) {
                 indexedItem.img = editedItem[imageField.name];
