@@ -49,8 +49,11 @@ body.AboutUs  {
 }
 
 .team .member img {
-    max-width: 70%;
-    border-radius: 70px 70px 70px 70px;
+    max-width: 100%;
+    border-radius: 100px;
+    width: 150px;
+    margin: 0 auto;
+    display: block;
 }
 .team .member {
     background-color: #fff;
@@ -60,6 +63,9 @@ body.AboutUs  {
     transition: background 0.3s, border 0.3s, border-radius 0.3s, box-shadow 0.3s;
     margin: 15px 15px 15px 15px;
     padding: 60px 30px 60px 30px;
+    display: inline-block;
+    height: 400px;
+    vertical-align: top;
 }
 
 #main {
@@ -87,8 +93,10 @@ body .itemPage #main {
   grid-gap: 10px;
 }
 
-#main h3, #main h2 {
+h3, h2 {
    color: #e14938;
+   color: #fff;
+   text-align: center;
 }
 
 /*   TITLE  */
@@ -122,21 +130,31 @@ body .itemPage #main {
     cursor: pointer;
     margin-top: 30px;
 }
-#main {direction: rtl;}
-#main .paper-row {
-    display: flex;
-    max-width: 792px;
-    box-shadow: 0px 0px 34px 1px rgba(0,0,0,0.5);
-    transition: background 0.3s, border 0.3s, border-radius 0.3s, box-shadow 0.3s;
-    margin: 10px 20px 0  0;  
+#main {
+    direction: rtl;
 }
 
-#main .paper-row .summary {
+#main .result-card {
+    display: flex;
+    box-shadow: 0px 0px 34px 1px rgba(0,0,0,0.5);
+    transition: background 0.3s, border 0.3s, border-radius 0.3s, box-shadow 0.3s;
+    margin: 30px 0 0;
+    padding: 30px;
+    flex-wrap: wrap;
+}
+.articles h3,
+.result-card h3 {
+    color: #e14938;
+    margin: 0 0 20px;
+    text-align: right;
+}
+
+.result-card .summary {
     width: 450px;
     padding: 40px;
 }
 
-#main .paper-row .summary h2 {
+.result-card .summary h2 {
     color: #333;
     font-family: Amatic SC;
     font-size: 35px;
@@ -145,14 +163,14 @@ body .itemPage #main {
     letter-spacing: 1px;
 }
 
-#main .paper-row .link-container {
+.result-card .link-container {
     align-self: center;
     display: flex;
     flex: 1;
     justify-content: center;
 }
 
-#main .paper-row .link-container a {
+.result-card .link-container a {
     font-weight: bold;
     text-transform: uppercase;
     background-color: #02ddf7;

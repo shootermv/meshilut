@@ -4,7 +4,7 @@
         .then(jsonItems=>{
             jsonItems.forEach( jsonItem => {
                 let itemDiv = document.createElement('div');
-                itemDiv.className = "paper-row";
+                itemDiv.className = "result-card";
                 let itemTitle = document.createElement('h3');
                 itemTitle.innerText = jsonItem.title;
                 itemDiv.append(itemTitle);
