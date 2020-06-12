@@ -337,6 +337,12 @@ export function contentItemForm ( contentType , editedItem , op ) {
               urlPreview.innerText =  editedItem.getURL(true);
               fieldDiv.appendChild(urlPreview);
             break;
+            case 'date':
+              inputField = document.createElement('input');
+              inputField.value = dataObject[field.name];
+              inputField.type = 'date';
+              fieldDiv.appendChild(inputField);
+            break;
             case 'wysiwyg':
             case 'textfield':
               inputField = document.createElement('textarea');

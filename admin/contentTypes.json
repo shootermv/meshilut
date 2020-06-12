@@ -20,6 +20,7 @@
         "fields":[
             {"name":"body","label":"תוכן","type":"wysiwyg"},
             {"name":"image","label":"תמונה","type":"image", "i18n":false}
+            {"name":"date","label":"תאריך פרסום","type":"date", "i18n":false}
         ]
     },
     {  
