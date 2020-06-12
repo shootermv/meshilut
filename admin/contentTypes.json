@@ -3,7 +3,6 @@
         "name":"post",
         "label":"כתבה",
         "labelPlural":"כתבות",
-        "labelPlural":"כתבות",
         "labelDefinedPlural":"הכתבות",
         "urlPrefix":"post/",
         "fields":[

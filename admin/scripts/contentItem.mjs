@@ -506,20 +506,25 @@ export function contentItemForm ( contentType , editedItem , op ) {
 
               if ( !isDeleted ) {
                 var indexedItem = {};
-                if (! currentItem ) {
+                if ( currentItem ) {
                   indexedItem = currentItem;
                 }
-                let teaserField = typeData.fields.find(f=>['wysiwyg','textfield'].indexOf(f.type) > -1);
-                indexedItem.id = editedItem.id;
-                indexedItem.title = editedItem.title;
-                indexedItem.teaser = editedItem[teaserField.name];
-                indexedItem.href = editedItem.getURL(false);
-                indexedItem.body = getSearchableString();
+                typeData.fields.forEach(fieldData=>{
+                  if ( ['id','title'].indexOf(fieldData.name) > -1 ) {
+                    indexedItem[fieldData.name] = editedItem[fieldData.name];
+                    return;
+                  }
+                  if ( ['wysiwyg','textfield'].indexOf(fieldData.type) > -1 ) {
+                    indexedItem[fieldData.name] = editedItem[fieldData.name].substring(0,250);
+                    return;
+                  }
+                  else {
+                    indexedItem[fieldData.name] = editedItem[fieldData.name];
+                  }
+                });
 
-                let imageField = typeData.fields.find( f => f.type=='image' );
-                if( imageField && editedItem[imageField.name] ) {
-                  indexedItem.img = editedItem[imageField.name];
-                }
+                indexedItem.href = editedItem.getURL(false);
+                indexedItem.s = getSearchableString();
 
                 fileJson.push(indexedItem);              
               }
@@ -537,9 +542,8 @@ export function contentItemForm ( contentType , editedItem , op ) {
    */
   let getSearchableString = function() {
     let words = typeData.fields            
-                .filter(f => f.type != 'image')
-                .filter(f=> ['id'].indexOf(f.name) )
-                .filter(f=> editedItem[f.name] )
+                .filter(f => ['wysiwyg','textfield'].indexOf(f.type ) > -1 )
+                .filter(f => editedItem[f.name] )
                 .map(f => editedItem[f.name].replace(/(<([^>]+)>)/ig," "))
                 .map(s => s.replace(/\r?\n|\r/g,' '))
                 .map(s => s.replace(/[^a-zA-Z0-9א-ת ]/g,""))

@@ -66,20 +66,39 @@
         <section class='title'>
             <h1>התנועה בחדשות</h1>        
         </section>
-        <h1>התנועה בחדשות</h1>
 <div id="main"> 
-    <div class="card-deck">
-        {% for paperItem in items %}
-            <div class="card" style="width: 18rem;display:inline-block">
-                <img class="card-img-top"  width="192px" height="134px" src="{% static paperItem.image %}" />
-                <div class="card-body">
-                    
-                    <h5 class="card-title">{{ paperItem.title }}</h5>   
-                    <a class="btn btn-primary" href="{{ paperItem.link }}" role="button">לצפיה</a> 
-                </div>  
-            </div>
-        {% endfor %}
-    </div>
+    <script>
+
+        fetch('search/news-item.json')
+            .then(res=>res.json())
+            .then(res=>{
+                res.forEach(resultItem=>{
+                    this.date = Date.parse(this.date);
+                    console.log(this.date);
+                });
+                console.log(res);
+                return res;
+            })
+            .then(res=>{
+                return res.sort((a, b)=>{ return a.date >b.date });
+            })
+            .then(jsonItems=>{
+                currentYear = '';
+                jsonItems.forEach( jsonItem => {
+                    let itemDiv = document.createElement('div');
+                    if ( currentYear != jsonItem.date.getYear() ) {
+                        let itemTitle = document.createElement('h3');
+                        itemTitle.innerText = jsonItem.title;
+                        itemDiv.append(itemTitle);
+                        let itemTeaser = document.createElement('span');
+                        itemTeaser.innerText = jsonItem.body;
+                        itemDiv.append(itemTeaser);
+                        document.getElementById('main').appendChild(itemDiv);
+                    }
+            });                
+        }); 
+    
+    </script>
 </div>
 
     </main>

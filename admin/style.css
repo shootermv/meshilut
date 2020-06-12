@@ -175,6 +175,10 @@ h1 {
     padding-right: 10px;
     border: 0 none;
   }
+  
+  .form-element input {
+    width:100%;
+  }
 
   .siteUrlPreview {
     display: block;
