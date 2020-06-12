@@ -73,30 +73,36 @@
             .then(res=>res.json())
             .then(res=>{
                 res.forEach(resultItem=>{
-                    this.date = Date.parse(this.date);
-                    console.log(this.date);
+                    resultItem.date = new Date(resultItem.date);
                 });
-                console.log(res);
                 return res;
             })
             .then(res=>{
                 return res.sort((a, b)=>{ return a.date >b.date });
             })
             .then(jsonItems=>{
-                currentYear = '';
+                let currentYear = '';
+               
                 jsonItems.forEach( jsonItem => {
-                    let itemDiv = document.createElement('div');
-                    if ( currentYear != jsonItem.date.getYear() ) {
-                        let itemTitle = document.createElement('h3');
-                        itemTitle.innerText = jsonItem.title;
-                        itemDiv.append(itemTitle);
-                        let itemTeaser = document.createElement('span');
-                        itemTeaser.innerText = jsonItem.body;
-                        itemDiv.append(itemTeaser);
-                        document.getElementById('main').appendChild(itemDiv);
+
+                    let itemYear = jsonItem.date.getYear();                   
+                    
+                    let link = document.createElement('a');
+                    
+                    link.innerHTML = `<img src='assets/images/${jsonItem.publisher}.png'><span>${jsonItem.title}</span>`;
+                    
+                    
+                    let yearDiv = document.getElementById('year_'+itemYear);
+                    if ( !yearDiv ) {
+                        yearDiv = document.createElement('div');
+                        yearDiv.id = 'year_'+itemYear;
+                        yearDiv.innerHTML = `<h3>${ itemYear }</h3>`;
+                        document.getElementById('main').appendChild(yearDiv);
                     }
-            });                
-        }); 
+                    yearDiv.appendChild(link);
+
+                });                
+            }); 
     
     </script>
 </div>
