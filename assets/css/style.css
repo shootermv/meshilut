@@ -79,7 +79,7 @@
   transition-duration:0.3s, 0.3s, 0.3s, 0.3s;
   transition-property:background, border, border-radius, box-shadow;
   transition-timing-function:ease, ease, ease, ease;
-  z-index:10;
+  z-index:100;
   -webkit-tap-highlight-color:rgba(0, 0, 0, 0);
   width: 100vw;
 }
@@ -453,7 +453,6 @@ body.AboutUs #main::before ,
 body.donations #main::before  {
   content: ' ';
   display: block;
-  z-index: 1;
   position: absolute;
   left: 0;
   top: 0;
@@ -461,8 +460,12 @@ body.donations #main::before  {
   height: 500px;
   background: url(../images/aboutUs.jpeg) center center no-repeat #000;
   background-size: 98% auto;
+  z-index: -1;
 }
-
+body.donations #main::before  {
+  background: url(../images/donationsBg.png) center center no-repeat #000;
+  height: 1000vh;
+}
 @media only screen and  (max-width: 1200px){ 
 
   #head .search-form {
