@@ -410,7 +410,7 @@
 }
 
 body:not(.frontPage) #main {
-    width: 1000px;
+    max-width: 1000px;
     margin: 100px auto;
 }
 
@@ -426,14 +426,30 @@ body.AboutUs #main .title  {
   display: none;
 }
 
-body.AboutUs #main  .title h1,
-body.donations #main  .title h1
-{
+body.AboutUs #main .title h1 {
   font-size: 61px;
   color: #fff;
   margin-top: 30px;
   text-align: center;
   border: 0 none;
+}
+
+
+body.donations #main .title  h1 {
+  color: #6ec1e4;
+  border: 0 none;
+  font-size: 80px;
+  font-family: "Amatic SC", Sans-serif;
+  font-weight: 600;
+  text-align: center;
+}
+
+body.donations #main p {
+  color: #ffffff;
+  font-family: "Arimo", Sans-serif;
+  font-size: 18px;
+  line-height: 1.8em;
+  text-align: center;
 }
 
 body.AboutUs #main .title h1::before {
@@ -458,14 +474,20 @@ body.donations #main::before  {
   top: 0;
   width: 100%;
   height: 500px;
-  background: url(../images/aboutUs.jpeg) center center no-repeat #000;
-  background-size: 98% auto;
+  background-position: center center;
+  background-size: cover;
+  background-image: url(../images/aboutUs.jpeg);
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+  background-color: #222;
   z-index: -1;
 }
+
 body.donations #main::before  {
-  background: url(../images/donationsBg.png) center center no-repeat #000;
-  height: 1000vh;
+  background-image: url(../images/donationsBg.png);
+  height: 100vh;
 }
+
 @media only screen and  (max-width: 1200px){ 
 
   #head .search-form {
