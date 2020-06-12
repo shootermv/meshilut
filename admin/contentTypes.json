@@ -20,7 +20,6 @@
         "fields":[
             {"name":"publisher","label":"מפרסם","type":"select","default":"other", "values":{"inn":"ערוץ 7","maariv":"מעריב","news1":"News 1","walla":"וואלה","srugim":"סרוגים","nrg":"NRG","other":"אחר"}, "i18n":false},
             {"name":"date","label":"תאריך פרסום","type":"date", "i18n":false},
-            {"name":"body","label":"תוכן","type":"wysiwyg"},
             {"name":"link","label":"כתובת הכתבה","type":"url", "i18n":false}            
         ]
     },
