@@ -338,9 +338,10 @@ export function contentItemForm ( contentType , editedItem , op ) {
               fieldDiv.appendChild(urlPreview);
             break;
             case 'date':
+            case 'url':
               inputField = document.createElement('input');
               inputField.value = dataObject[field.name];
-              inputField.type = 'date';
+              inputField.type = field.type;
               fieldDiv.appendChild(inputField);
             break;
             case 'select':
