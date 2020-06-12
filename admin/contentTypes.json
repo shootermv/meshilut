@@ -31,7 +31,7 @@
         "labelPlural":"סרטונים",
         "labelDefinedPlural":"הסרטונים",
         "fields":[
-            {"name":"url","label":"כתובת (URL)","type":"textfield" , "i18n":false }
+            {"name":"url","label":"כתובת (URL)","type":"url" , "i18n":false }
         ]
     },
     {  
