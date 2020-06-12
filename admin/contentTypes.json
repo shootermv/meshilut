@@ -18,10 +18,10 @@
         "labelPlural":"פריטי חדשות",
         "labelDefinedPlural":"פריטי החדשות",
         "fields":[
-            {"name":"body","label":"תוכן","type":"wysiwyg"},
-            {"name":"image","label":"תמונה","type":"image", "i18n":false},
             {"name":"publisher","label":"מפרסם","type":"select","default":"other", "values":{"inn":"ערוץ 7","maariv":"מעריב","news1":"News 1","walla":"וואלה","srugim":"סרוגים","nrg":"NRG","other":"אחר"}, "i18n":false},
-            {"name":"date","label":"תאריך פרסום","type":"date", "i18n":false}
+            {"name":"date","label":"תאריך פרסום","type":"date", "i18n":false},
+            {"name":"body","label":"תוכן","type":"wysiwyg"},
+            {"name":"image","label":"תמונה","type":"image", "i18n":false}            
         ]
     },
     {  

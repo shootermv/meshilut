@@ -343,6 +343,14 @@ export function contentItemForm ( contentType , editedItem , op ) {
               inputField.type = 'date';
               fieldDiv.appendChild(inputField);
             break;
+            case 'select':
+              inputField = document.createElement('select');
+              inputField.value = dataObject[field.name];
+              Object.keys(field.values).forEach(valueKey=>{
+                inputField.innerHTML += `<option value='${valueKey}'>${field.values[valueKey]}</option>`;
+              })
+              fieldDiv.appendChild(inputField);
+            break;
             case 'wysiwyg':
             case 'textfield':
               inputField = document.createElement('textarea');
@@ -374,9 +382,6 @@ export function contentItemForm ( contentType , editedItem , op ) {
           inputField.onchange = function(event) {
           
             switch(field.type){
-              case 'id': 
-                editedItem.id = inputField.value;
-              break;
               case 'wysiwyg':
               case 'textfield':
                 let textValue = typeof event == 'string' ? event :  event.target.value;
@@ -404,6 +409,9 @@ export function contentItemForm ( contentType , editedItem , op ) {
                   }
                 }
                 reader.readAsDataURL(this.files[0]);
+              break;
+              default: 
+                editedItem.set(field.name, inputField.value);
               break;
             }
 
