@@ -178,6 +178,25 @@ h3, h2 {
     padding: 15px 30px;
     color: #fff;
 }
+
+body.news #main .result-card img {
+    margin-bottom: 20px;
+    max-width: 170px;
+    max-height: 150px;
+}
+
+body.news #main .result-card {
+    width: 250px;
+    display: inline-block;
+    margin: 0 0 20px 29px;
+    vertical-align: top;
+    height: 280px;
+}
+
+body.news #main .result-card span {
+    display: block;
+}
+
 /*  THREE  */
 #main section.three-widgets {
     background:#efe8d8;

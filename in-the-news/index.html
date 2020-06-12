@@ -85,10 +85,11 @@
                
                 jsonItems.forEach( jsonItem => {
 
-                    let itemYear = jsonItem.date.getYear();                   
-                    
+                    let itemYear = jsonItem.date.getFullYear();          
+
                     let link = document.createElement('a');
-                    
+                    link.href = jsonItem.link;
+                    link.className = 'result-card';
                     link.innerHTML = `<img src='assets/images/${jsonItem.publisher}.png'><span>${jsonItem.title}</span>`;
                     
                     
