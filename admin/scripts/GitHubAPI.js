@@ -52,7 +52,7 @@ function GitHubAPI (loginParams, onSuccess, onFailure) {
    * Todo: better support blob for binary files 
    */
   this.commitChanges = async function( commitMessage, files ) {
-
+    document.body.classList.add('loading');
     return repo.git
         .refs('heads/master').fetch()
         .then(main=> {
@@ -78,6 +78,9 @@ function GitHubAPI (loginParams, onSuccess, onFailure) {
                       console.log('tree has been added');
                       return this.main.update({sha: commit.sha});
                     });
+                  }).finally( res=>{
+                    document.body.classList.remove('loading');
+                    return res;
                   });
        })
   }

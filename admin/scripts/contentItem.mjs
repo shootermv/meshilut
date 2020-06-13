@@ -209,8 +209,9 @@ export async function contentItemLoader ( contentType , ItemId ) {
   }
   else {
     // load item details
-    return fetch(contentObject.getURL(true)+'/index.json')
-            .then( res => { return res.json() })
+    let APIconnect = utils.getGlobalVariable('gitApi');
+    return APIconnect.getFile (contentObject.getURL(false)+'/index.json')
+            .then( res => { return JSON.parse(res) })
             .then( loadedItemDetails => {
                 // init to the default value
                 Object.keys(loadedItemDetails).forEach(field =>{
