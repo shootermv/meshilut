@@ -23,16 +23,6 @@
         ]
     },
     {  
-        "name":"movies",
-        "label":"סרטון",
-        "urlPrefix":"movie/",
-        "labelPlural":"סרטונים",
-        "labelDefinedPlural":"הסרטונים",
-        "fields":[
-            {"name":"url","label":"כתובת (URL)","type":"url" , "i18n":false }
-        ]
-    },
-    {  
         "name":"member",
         "label":"חבר צוות",
         "labelPlural":"חברי צוות",

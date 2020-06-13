@@ -517,6 +517,8 @@ export function contentItemForm ( contentType , editedItem , op ) {
                 indexedItem.title = editedItem.title;
                 
                 typeData.fields.forEach(fieldData=>{
+                  if ( ['image', 'file'].indexOf(fieldData.type) > -1 ) {
+                  }
                   if ( ['wysiwyg','textfield'].indexOf(fieldData.type) > -1 ) {
                     indexedItem[fieldData.name] = editedItem[fieldData.name].substring(0,250);
                     return;

@@ -18,6 +18,35 @@ body.loading::before {
   position: fixed;
   height: 100vh;
   width: 100vw;
+  z-index: 10;
+
+  
+}
+body #spinner { 
+  display: none;
+  background-image: url(../assets/images/spinner.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 140px;
+}
+body.loading #spinner {
+  animation: rotation 3s infinite;
+  display: block;
+  width: 150px;
+  height: 150px;
+  position: absolute;
+  z-index: 111;
+  top: calc( 50vh - 75px );
+  right: calc( 50vw - 75px );
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
 }
 
 table {
