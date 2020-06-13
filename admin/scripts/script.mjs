@@ -100,9 +100,7 @@ export function routeToCall(){
       location = '';
     break;
     default:
-      document.getElementById('content').innerHTML = 'error';
-      let contentTypes = getGlobalVariable('contentTypes');
-      //location.hash = contentTypes.reverse()[0].name + '/all';      
+      document.getElementById('content').innerHTML = '';   
     break;
   }
 }

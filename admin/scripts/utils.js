@@ -72,5 +72,5 @@ export let t = function( translationKey, language ) {
  * Close edit page (navigate to content type list)
  */
 export let gotoList = function( typeName ) {
-  location.hash = typeName+'/all';
+  location = '#'+ typeName+'/all';
 }

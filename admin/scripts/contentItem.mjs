@@ -471,6 +471,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
             commitFiles('Save '+ contentType +': ' + editedItem.id , files )
             .then(res => {
               localStorage.removeItem( editedItem.type+'/' + editedItem.id );
+              localStorage.removeItem( editedItem.type+'/new' );
               utils.gotoList( contentType );
             }); 
           })         
