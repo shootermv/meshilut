@@ -444,6 +444,19 @@ body.donations #main .title  h1 {
   text-align: center;
 }
 
+body.contact #main .title  h1 {
+  color: #6ec1e4;
+  border: 0 none;
+  font-size: 80px;
+  height:260px;
+  margin-top: 230px;
+  text-align: center;
+} 
+
+body.contact {
+  background-color:#efe8d8;
+}
+
 body.donations #main p {
   color: #ffffff;
   font-family: "Arimo", Sans-serif;
@@ -466,7 +479,8 @@ body.AboutUs #main {
 }
 
 body.AboutUs #main::before , 
-body.donations #main::before  {
+body.donations #main::before,
+body.contact #main::before {
   content: ' ';
   display: block;
   position: absolute;
@@ -481,6 +495,22 @@ body.donations #main::before  {
   background-repeat: no-repeat;
   background-color: #222;
   z-index: -1;
+}
+
+body.AboutUs #main::after {
+  content: " ";
+  display: block;
+  left: 0px;
+  width: 100%;
+  height: 500px;
+  background-image: url(../images/team.jpg);
+  background-size: 100%;
+  background-color: rgb(34, 34, 34);
+  z-index: -1;
+  position: absolute;
+  margin-top: -200px;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 body.donations #main::before  {
