@@ -66,7 +66,7 @@ function GitHubAPI (loginParams, onSuccess, onFailure) {
                  // call commit
                 .then( filesTree =>{
                   console.log('commit start - build tree');
-                    repo.git.trees.create({
+                  return repo.git.trees.create({
                       tree: filesTree,
                       base_tree: main.object.sha
                     }).then( tree => {

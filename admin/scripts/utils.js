@@ -73,4 +73,5 @@ export let t = function( translationKey, language ) {
  */
 export let gotoList = function( typeName ) {
   location = '#'+ typeName+'/all';
+  location.reload();
 }
