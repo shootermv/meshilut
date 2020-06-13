@@ -506,15 +506,16 @@ export function contentItemForm ( contentType , editedItem , op ) {
               fileJson = fileJson.filter( fileItem=> fileItem.id != editedItem.id );
 
               if ( !isDeleted ) {
-                var indexedItem = {};
+                var indexedItem = {'id': editedItem.id };
+                
                 if ( currentItem ) {
                   indexedItem = currentItem;
                 }
+                //TODO: Support languages
+
+                indexedItem.title = editedItem.title;
+                
                 typeData.fields.forEach(fieldData=>{
-                  if ( ['id','title'].indexOf(fieldData.name) > -1 ) {
-                    indexedItem[fieldData.name] = editedItem[fieldData.name];
-                    return;
-                  }
                   if ( ['wysiwyg','textfield'].indexOf(fieldData.type) > -1 ) {
                     indexedItem[fieldData.name] = editedItem[fieldData.name].substring(0,250);
                     return;
