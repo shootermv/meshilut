@@ -363,11 +363,19 @@ export function contentItemForm ( contentType , editedItem , op ) {
               inputField.value = dataObject[field.name] ? dataObject[field.name] : '';
               fieldDiv.appendChild(inputField);
             break;
-            case 'image':           
-              fieldDiv.innerHTML += `<div class='preview'>
-                ${ editedItem[field.name]? `<img src="${ siteUrl +'/'+editedItem[field.name]}" />` : '' }
-              </div>`;
+            case 'image':  
             case 'file':
+              if( field.type == 'image') {         
+                fieldDiv.innerHTML += `<div class='preview'>
+                  ${ editedItem[field.name]? `<img src="${ siteUrl +'/'+editedItem[field.name]}" />` : '' }
+                </div>`;
+              }
+              else {
+                fieldDiv.innerHTML += `<div class='preview'>
+                  ${ editedItem[field.name] }
+                </div>`;
+              }
+            
               inputField = document.createElement('input');
               fieldDiv.appendChild(inputField);
               inputField.id='formitem_'+ field.name;
