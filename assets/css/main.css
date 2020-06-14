@@ -128,8 +128,10 @@ h3, h2 {
     font-size: 1.3em;
     border-radius: 10px;
     cursor: pointer;
-    margin-top: 30px;
+    margin: 0 auto 30px; 
+    display: block;
 }
+
 #main {
     direction: rtl;
 }

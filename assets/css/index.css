@@ -374,15 +374,20 @@ section.quote h3{
     font-size: 35px;
     line-height: 1.5em;
     letter-spacing: 1.2px;
+    font-weight: bold;
+    text-align: right;
 }
 section.quote .spacer {
     background: #fff;
     height: 5px;
-    width: 120px;
+    width: 220px;
 }
 
 section.quote .author {
-    color: #fff;
     margin: 30px 0 40px 0;
+    color: #fcfcfc;
+    font-family: "Roboto", Sans-serif;
+    font-size: 18px;
+    font-weight: 100;
     font-style: italic;
 }
