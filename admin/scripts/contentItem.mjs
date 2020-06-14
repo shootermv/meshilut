@@ -620,7 +620,7 @@ export function contentList( parentElement, contentType ) {
   let APIconnect = utils.getGlobalVariable('gitApi');
   let typeData = utils.getGlobalVariable('contentTypes').find(ty=>ty.name==contentType);
   let pageTitle  =  typeData.labelPlural;
-  utils.successMessage('aaaa111');
+  
   APIconnect.getFile ('/search/'+contentType+'.json')
     .then(response=>{
       return JSON.parse(response);
