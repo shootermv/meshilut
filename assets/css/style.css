@@ -497,18 +497,17 @@ body.contact #main::before {
   z-index: -1;
 }
 
-body.AboutUs #main::after {
+body.AboutUs #main::after {  
   content: " ";
   display: block;
   left: 0px;
   width: 100%;
-  height: 500px;
+  height: 1100px;
   background-image: url(../images/team.jpg);
   background-size: 100%;
   background-color: rgb(34, 34, 34);
   z-index: -1;
   position: absolute;
-  margin-top: -200px;
   background-position: center center;
   background-repeat: no-repeat;
 }
@@ -516,6 +515,11 @@ body.AboutUs #main::after {
 body.donations #main::before  {
   background-image: url(../images/donationsBg.png);
   height: 100vh;
+}
+
+body.AboutUs #members {
+    width: 560px;
+    margin: 0 auto;
 }
 
 @media only screen and  (max-width: 1200px){ 

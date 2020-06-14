@@ -27,15 +27,15 @@ body.AboutUs #main section.about img, body.frontPage #main section.movie1 img {
     height: 400px;
 }
 .aboutText {
-    background-size: 100% auto;
-    background-position: 0;
-    padding: 100px;
-    font-family: "Alef Hebrew", Sans-serif;
+    background-size: 100%;
+    font-family: "Alef Hebrew", sans-serif;
     font-size: 20px;
     font-weight: 300;
-    color:#fff;
+    color: rgb(255, 255, 255);
+    margin-bottom: -1150px;
+    background-position: 0px center;
+    padding: 100px 100px 250px;
 }
-
 body.AboutUs  {
     background-color: #B3C0B7;
 }

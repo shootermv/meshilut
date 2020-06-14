@@ -130,6 +130,7 @@
 
 #main section.summary-section .shape-bottom svg{
     transform: scaleX(2.7) rotateY(180deg);
+    width: 68%;
 }
 
 #main section.summary-section h1 {
@@ -283,7 +284,7 @@
 
 
 /*  WITHYOU */
-#main section.withyou h4 {
+#main section.withyou h3 {
     color: #228bd6;
     text-align: center;
     font-family: "Amatic SC", Sans-serif;
@@ -292,8 +293,10 @@
     text-transform: capitalize;
     margin-bottom: 34px;
 }
+
 #main section.withyou p {
-    margin: 0 15%;
+    width: 888px;
+    margin: 0 auto;
 }
 
 /*  GRID  */
@@ -357,25 +360,27 @@ section.articles-grid  .grid {
     display: flex;
 }
 /* FOOTER  */
-#main footer {
+section.quote {
     margin-top: 20px;
     padding: 130px 50px  50px 0;
     background-color: #222329;
     opacity: 0.9;
 }
-#main footer h3{
-    font-family: "Amatic SC", Sans-serif;
-    font-size: 35px;
+section.quote h3{
     color:#fff;
     margin-bottom: 30px;
+    font-family: "Amatic SC", Sans-serif;
+    font-size: 35px;
+    line-height: 1.5em;
+    letter-spacing: 1.2px;
 }
-#main footer .spacer {
+section.quote .spacer {
     background: #fff;
     height: 5px;
     width: 120px;
 }
 
-#main footer .author {
+section.quote .author {
     color: #fff;
     margin: 30px 0 40px 0;
     font-style: italic;
