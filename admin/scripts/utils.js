@@ -75,3 +75,13 @@ export let gotoList = function( typeName ) {
   location = '#'+ typeName+'/all';
   location.reload();
 }
+
+export let successMessage = function( message , opData ) {
+  console.log(message);
+  console.log(opData);
+}
+
+
+export let errorHandler = function( error ) {
+  
+}

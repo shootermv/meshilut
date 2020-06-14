@@ -500,8 +500,12 @@ export function contentItemForm ( contentType , editedItem , op ) {
     let APIconnect = utils.getGlobalVariable('gitApi');
     return APIconnect
             .getFile ('/search/'+contentType+'.json')
-            .then(response => JSON.parse(response))
-            .catch(error => [])
+            .then(response => {
+              return JSON.parse(response)
+            })
+            .catch(error => { 
+              return [];
+            })
             .then( fileJson => {
               let currentItem = fileJson.find( fileItem=> fileItem.id== editedItem.id); 
               fileJson = fileJson.filter( fileItem=> fileItem.id != editedItem.id );
@@ -583,6 +587,9 @@ export function contentList( parentElement, contentType ) {
   APIconnect.getFile ('/search/'+contentType+'.json')
     .then(response=>{
       return JSON.parse(response);
+    })
+    .catch(exception=>{
+      console.log(exception);
     })
     .then(items=>{
       if(items.length==0) {throw 'empty';}

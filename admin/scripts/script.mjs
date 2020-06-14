@@ -22,8 +22,6 @@ export function routeToCall(){
     case !getGlobalVariable('translations'):
       loadSystemFile( 'translations', './translations.json' , translatePage );
     break;
-    case !getGlobalVariable('logStore'):
-      setGlobalVariable( 'logStore', {} );
     case !getGlobalVariable('gitApi'):
       doLogin(document.getElementById('content'));
     break;
