@@ -404,7 +404,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
                 editedItem.set( field.name , editedItem.getURL(false)+ '/'+field.name+'.'+this.files[0].name.split('.').pop());
                 var reader = new FileReader();               
 
-                reader.onload = function (evt) {
+                reader.onload = ( evt => {
                   var contents = reader.result;
                   editedItem.setFile(field.name ,contents.substr(contents.indexOf(',') + 1)); 
 
@@ -412,12 +412,17 @@ export function contentItemForm ( contentType , editedItem , op ) {
                   let image = document.createElement("img");
                   image.src = contents;
                   image.setAttribute('style','max-width:200px;max-heigth:200px;'); 
+                  
+                  let previewElement = wrapper.querySelector('.preview');
+                  previewElement.innerHTML = '';
                   if ( field.type == 'image' ) {
-                    let previewElement = wrapper.querySelector('.preview');
-                    previewElement.innerHTML = '';
                     previewElement.appendChild(image);
                   }
-                }
+                  else {
+                    previewElement.innerHTML = this.files[0].name;
+                  }
+                });
+                
                 reader.readAsDataURL(this.files[0]);
               break;
               default: 

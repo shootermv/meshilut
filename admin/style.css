@@ -121,6 +121,10 @@ h1 {
   {
       width: 100%;
   }
+
+  #content input[type=date] {
+    width: 120px;
+  }
   
   #content textarea {
     height:250px;
@@ -162,10 +166,11 @@ h1 {
     text-align: center;
   }
 
-  label {
-    font-weight: 500;
+  .form-element label {
+    margin-bottom:0;
+    font-weight: bold;
     display: block;
-    margin-top:10px;
+    margin-top: 20px;
   }
 
   tr:nth-child(even) {
