@@ -14,6 +14,7 @@ export function contentItem ( contentType , ItemId ) {
 
   this.id = ItemId;
   this.type= contentType;
+  this.isNew = ItemId == 'new';
   this.attachments = {};
   
   this.seo = {};
@@ -24,12 +25,31 @@ export function contentItem ( contentType , ItemId ) {
   let appSettings = utils.getGlobalVariable('appSettings');
   let siteUrl = appSettings['Site_Url'];
   let typeData = utils.getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
+ 
+  /* when item is new - prevent from changing it's id to existing one */
+  let existsItemsIds = [];
+  if ( this.isNew ) {
+    let APIconnect = utils.getGlobalVariable('gitApi');
+    APIconnect.getFile ('/search/'+contentType+'.json')
+              .then(response => {
+                return JSON.parse(response)
+              })
+              .then( fileJson => {
+                existsItemsIds = fileJson.map(i=>i.id);
+              });
+  }
   
+
   this.validate = () => {
     let errors = {};
     if( ['','new'].indexOf(this.id) > -1 )  {
       errors.id = 'Id is required';
     }
+
+    if( existsItemsIds.indexOf(this.id) > -1 ) {
+      errors.id = 'This Id allready exists';
+    }
+
     if( !this.title ) {
       errors.title = 'Title is required';
     }
@@ -326,13 +346,17 @@ export function contentItemForm ( contentType , editedItem , op ) {
 
           switch(field.type){
             case 'id': 
-              inputField = document.createElement('input');
-              inputField.value = editedItem.id;
-              inputField.onkeyup = v => {
-                  editedItem.set( 'id' , v.target.value );
-                  urlPreview.innerText =  editedItem.getURL(true);
-              };
-              fieldDiv.appendChild(inputField);
+              
+                inputField = document.createElement('input');
+                inputField.value = editedItem.id;
+                inputField.onkeyup = v => {
+                    editedItem.set( 'id' , v.target.value );
+                    urlPreview.innerText =  editedItem.getURL(true);
+                };
+                fieldDiv.appendChild(inputField);
+              if ( !editedItem.isNew ) {
+                inputField.style.display = 'none';
+              }
               let urlPreview = document.createElement('span');
               urlPreview.className = 'siteUrlPreview'
               urlPreview.innerText =  editedItem.getURL(true);
@@ -596,7 +620,7 @@ export function contentList( parentElement, contentType ) {
   let APIconnect = utils.getGlobalVariable('gitApi');
   let typeData = utils.getGlobalVariable('contentTypes').find(ty=>ty.name==contentType);
   let pageTitle  =  typeData.labelPlural;
-  
+  utils.successMessage('aaaa111');
   APIconnect.getFile ('/search/'+contentType+'.json')
     .then(response=>{
       return JSON.parse(response);

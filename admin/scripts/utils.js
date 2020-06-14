@@ -76,12 +76,41 @@ export let gotoList = function( typeName ) {
   location.reload();
 }
 
-export let successMessage = function( message , opData ) {
-  console.log(message);
-  console.log(opData);
+export let successMessage = function( message ) {
+  addMessage(message,'success');
 }
 
+let addMessage = function ( message, type ) {
+  let messages = [];
+  if( localStorage.getItem('messages')) {
+    messages = JSON.parse(localStorage.getItem('messages'));
+  }
+
+  messages.push({'time':Date.now(), 'message': message, 'type':type })
+  localStorage.setItem('messages', JSON.stringify(messages) );
+  showMessage();
+}
+
+export let showMessage = function() {
+  let messagesContainer = document.getElementById('messages');
+  let messages = JSON.parse(localStorage.getItem('messages'));
+  messages.forEach(message => {
+    if( !document.getElementById('message_'+ message.time.toString()) ) {
+      let messageElemnt = document.createElement('div');
+      messageElemnt.className = 'alert alert-'+message.type;
+      messageElemnt.innerHTML = message.message;
+      messagesContainer.appendChild( messageElemnt );
+      setTimeout( ( ()=>{ 
+        messagesContainer.removeChild(messageElemnt);
+        let messages = JSON.parse(localStorage.getItem('messages'));
+        messages = messages.filter(m=>m.time != message.time);
+
+        localStorage.setItem('messages', JSON.stringify(messages) );
+      }) ,10000)
+    }
+  });
+}
 
 export let errorHandler = function( error ) {
-  
+  addMessage( error , 'danger');
 }
