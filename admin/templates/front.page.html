@@ -46,7 +46,7 @@
     
     <section class="more-aboutus">
     <div class="inner">
-        <h2>עוד עלינו</h2>
+        <h2>${ this.strings.fp_socialLinks }</h2>
         <div class="social-icons-wrapper">
             <a href="https://www.facebook.com/Meshilut/" target="_blank">
                 <i class="fab fa-facebook"></i>
@@ -59,7 +59,7 @@
             </a>
         </div>
         <p>
-            הצטרפו לתנועה למשילות ודמוקרטיה ברשתות החברתיות, ותהיו חלק מהפעילות שלנו למען אזרחיה של מדינת ישראל  
+            ${ this.strings.fp_socialBody }  
         </p>
         <div class="separator"></div>
     </div>
@@ -72,16 +72,11 @@
 </section>
 
 <section class="withyou">
-    <h4>
-        איתכם ולמענכם
-    </h4>
-    <p>
-        התנועה הינה עמותה רשומה העוסקת בשמירת האיזונים בין מרכיבי הדמוקרטיה השונים במדינת ישראל: הכרעת הרוב, זכויות הפרט, הגינות שלטונית ושקיפות. התנועה עוקבת, חוקרת, מפרסמת ומקדמת חקיקה ורפורמות בממשק שבין הרשות הנבחרת, המבטאת את הכרעות הרוב ואת היותה של ישראל מדינה יהודית לבין הרשות השופטת המופקדת על זכיות הפרט, מניעת שחיתות ושלטון החוק ושמה לה למטרה לקדם מגמות אלה בקרב הציבור בישראל.
-    </p>
-    </section>
+    ${ this.strings.fp_block3 }
+ </section>
 
 
-    <section class="articles-grid">
+<section class="articles-grid">
     <div class="grid">
         <article style="background-image:url(http://meshilut.org/wp-content/uploads/2019/12/800x392.20191217T114309-300x147.jpg)"><a href="/post/1">blaa blaa</a></article>
         <article style="background-image:url(http://meshilut.org/wp-content/uploads/2019/12/800x392.20191217T114309-300x147.jpg)"><a href="https://www.google.com">blaa blaa</a></article>
@@ -97,10 +92,10 @@
 
 <footer>     
     <div class="inner">
-        <h3 class="size-large">“העולם כולו וכל בני-האדם בו הם עניינם של כולם” </h3>		
+        <h3 class="size-large">“${ this.strings.fp_quote }” </h3>		
         <div class="spacer"></div>
         <div class="author">
-            ויליאם סארויאן
+            ${ this.strings.fp_quoteBy }
         </div>
     </div>
 </footer>   
