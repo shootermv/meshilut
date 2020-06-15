@@ -167,6 +167,11 @@ h3, h2 {
     padding: 5px;
 }
 
+body.itemPage img {
+    float: right;
+    margin-left: 20px;
+}
+
 .result-card .summary {
     width: 450px;
     padding: 40px;
