@@ -163,38 +163,38 @@ export function contentItem ( contentType , ItemId ) {
   let renderPage = async function( editItemObj, languages , isDeleted ) {
 
     let translations = utils.getGlobalVariable('translations');
-    let innerPageRendererTemplate = 'templates/genericInner.html';
-    if ( isDeleted ) innerPageRendererTemplate = 'templates/404.html'; 
+       
+    return fetch('templates/base.html')
+            .then(result=> result.text())
+            .then( baseTemplate => {
+              return Promise.all( languages.map( language => {
 
-    // TODO: Use impoprt to fetch templates
-    return Promise.all([
-      fetch('templates/base.html').then(result=> result.text()),
-      fetch( innerPageRendererTemplate ).then(result=> result.text()),
-    ])
-    .then( templates => {
-      return Promise.all( languages.map( language => {
+                let strings = {};        
+                translations.forEach(item => strings[item.key] = item.t[language==''?'he':language] );
 
-        let strings = {};        
-        translations.forEach(item => strings[item.key] = item.t[language==''?'he':language] );
-
-        let templateVars = {
-            'strings': strings,
-            'site_url':siteUrl,
-            'direction':'rtl',
-            'linksPrefix':  language + (language==''?'':'/'),
-            'pageTitle': language=='' ? editItemObj.title: editItemObj[language].title,
-            'pageClass': 'itemPage '+ editItemObj.type
-        } ;
-
-        templateVars.content = editItemObj.render(language);
-         
-        return {
-          "content":  new Function("return `"+templates[0] +"`;").call(templateVars),
-          "filePath": (language!=''?language+'/':'')+editItemObj.getURL(false)+'/index.html',
-          "encoding": "utf-8" 
-        }
-      }));
-    }) 
+                let templateVars = {
+                    'strings': strings,
+                    'site_url':siteUrl,
+                    'direction':'rtl',
+                    'linksPrefix':  language + (language==''?'':'/'),
+                    'pageTitle': language=='' ? editItemObj.title: editItemObj[language].title,
+                    'pageClass': 'itemPage '+ editItemObj.type
+                } ;
+                if ( !isDeleted ) {
+                  templateVars.content = editItemObj.render(language);
+                }
+                else {
+                  templateVars.pageTitle = 'Page not found';
+                  templateVars.content = '';
+                }
+                
+                return {
+                  "content":  new Function("return `" + baseTemplate + "`;").call(templateVars),
+                  "filePath": (language!=''?language+'/':'')+editItemObj.getURL(false)+'/index.html',
+                  "encoding": "utf-8" 
+                }
+              }));
+            }) 
   }
 }
 
