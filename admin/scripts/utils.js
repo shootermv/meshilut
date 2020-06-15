@@ -115,7 +115,7 @@ export let errorHandler = function( error ) {
   console.log(error);
 
   let errors = [];
-  if ( localStorage.getItem('latest_errors' ) {
+  if ( localStorage.getItem('latest_errors' ) ) {
     errors = JSON.parse(localStorage.getItem('latest_errors'));
   }
  // errors = errors.filter(e=>e.time > )
