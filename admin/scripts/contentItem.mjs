@@ -634,7 +634,7 @@ export function contentList( parentElement, contentType ) {
                         <th>לינקים</th>
                         <th>כותרת</th>                     
                       </tr>
-                      ${ items.map((item) => 
+                      ${ items.reverse().map((item) => 
                         `<tr>
                           <td>${item.id}</td>
                           <td>
