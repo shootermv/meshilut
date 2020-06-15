@@ -1,4 +1,4 @@
-import {loadSystemFile, getGlobalVariable, setGlobalVariable } from './utils.js'; 
+import * as utils from './utils.js'; 
 import { commitFiles, contentItemForm, contentList , contentItemLoader} from './contentItem.mjs'; 
 import {doLogin} from './login.mjs'; 
 
@@ -8,6 +8,7 @@ import {doLogin} from './login.mjs';
  * Create a page loading flow
  **/
 let regexExpressions =  {};
+let loadSteps = {};
 
 export function routeToCall(){
 
@@ -15,26 +16,31 @@ export function routeToCall(){
  
   switch(true) {
     /** Page loader - init variables **/
-    case !getGlobalVariable('appSettings'):
-      loadSystemFile( 'appSettings', './appSettings.json' , routeToCall );
+    case !utils.getGlobalVariable('appSettings'):
+      utils.loadSystemFile( 'appSettings', './appSettings.json' , routeToCall );
     break;
     /** Page loader - init variables **/
-    case !getGlobalVariable('translations'):
-      loadSystemFile( 'translations', './translations.json' , translatePage );
+    case !utils.getGlobalVariable('translations'):
+      utils.loadSystemFile( 'translations', './translations.json' , translatePage );
     break;
-    case !getGlobalVariable('gitApi'):
+    case !utils.getGlobalVariable('gitApi'):
       doLogin(document.getElementById('content'));
     break;
-    case !getGlobalVariable('SEOFields'):
-      loadSystemFile( 'SEOFields', './SEOFields.json' , routeToCall );
+    case !utils.getGlobalVariable('SEOFields'):
+      utils.loadSystemFile( 'SEOFields', './SEOFields.json' , routeToCall );
     break;
-    case !getGlobalVariable('contentTypes'):
-      loadSystemFile( 'contentTypes', './contentTypes.json', function(){
-        if( getGlobalVariable('contentTypes').length > 0 ) {
-          let contentTypesSingle = '(' + getGlobalVariable('contentTypes').map(a=>a.name).join('|') +')';
+    case !loadSteps.messages: 
+      utils.showMessage();
+      loadSteps.messages = true;
+      routeToCall();
+    break;
+    case !utils.getGlobalVariable('contentTypes'):
+      utils.loadSystemFile( 'contentTypes', './contentTypes.json', function(){
+        if( utils.getGlobalVariable('contentTypes').length > 0 ) {
+          let contentTypesSingle = '(' + utils.getGlobalVariable('contentTypes').map(a=>a.name).join('|') +')';
           regexExpressions.itemManagment = new RegExp('#'+contentTypesSingle+'\\/([^\/]+)',"i");
              
-          getGlobalVariable('contentTypes').reverse().forEach(contentType => {
+          utils.getGlobalVariable('contentTypes').reverse().forEach(contentType => {
             document.getElementById('sidebarLinks').insertAdjacentHTML('afterbegin',  `
               <li><h3>${contentType.labelPlural}</h3></li>
               <li>
@@ -105,8 +111,8 @@ export function routeToCall(){
 
 /** Translation interface for 'static' string in pages */
 function translationInterface(parentElement) {
-  let translations = getGlobalVariable('translations');
-  let appSettings = getGlobalVariable('appSettings');
+  let translations = utils.getGlobalVariable('translations');
+  let appSettings = utils.getGlobalVariable('appSettings');
   
   let fields = translations.filter(translationItem=>translationItem.ui==1)
                            .map( translationItem => `
@@ -263,8 +269,8 @@ function translationInterface(parentElement) {
 
 /* update page with translated strings */
 function translatePage( items ) {
-  let appSettings = getGlobalVariable('appSettings'); 
-  let translations = getGlobalVariable('translations');
+  let appSettings = utils.getGlobalVariable('appSettings'); 
+  let translations = utils.getGlobalVariable('translations');
 
   translations.forEach(translateItem=>{
     var element = document.getElementById('t_'+translateItem.key);
@@ -279,8 +285,8 @@ function translatePage( items ) {
  * Rebuild items HTML pages from items Json.
  */
 function rebuildHTML(parentElement) {
-  let typeData = getGlobalVariable('contentTypes');
-  let appSettings = getGlobalVariable('appSettings');
+  let typeData = utils.getGlobalVariable('contentTypes');
+  let appSettings = utils.getGlobalVariable('appSettings');
   let siteUrl = appSettings['Site_Url'];
   let parent = document.createElement('div');
   /* */
