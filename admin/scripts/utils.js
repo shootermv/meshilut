@@ -92,8 +92,13 @@ let addMessage = function ( message, type ) {
 }
 
 export let showMessage = function() {
+
+  if( !localStorage.getItem('messages') ) return;
+
   let messagesContainer = document.getElementById('messages');
+  
   let messages = JSON.parse(localStorage.getItem('messages'));
+  
   messages.forEach(message => {
     if( !document.getElementById('message_'+ message.time.toString()) ) {
       let messageElemnt = document.createElement('div');
