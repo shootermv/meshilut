@@ -391,7 +391,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
             case 'file':
               if( field.type == 'image') {         
                 fieldDiv.innerHTML += `<div class='preview'>
-                  ${ editedItem[field.name]? `<img src="${ siteUrl +'/'+editedItem[field.name]}" />` : '' }
+                  ${ editedItem[field.name]? `<img src="${ siteUrl + editedItem[field.name]}" />` : '' }
                 </div>`;
               }
               else {
