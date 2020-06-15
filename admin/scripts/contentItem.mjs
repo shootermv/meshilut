@@ -615,7 +615,7 @@ export function contentList( parentElement, contentType ) {
   let typeData = utils.getGlobalVariable('contentTypes').find(ty=>ty.name==contentType);
   let pageTitle  =  typeData.labelPlural;
   
-  APIconnect.getFile ('/search/'+contentType+'.json')
+  APIconnect.getFile('/search/'+contentType+'.json')
     .then(response=>{
       return JSON.parse(response);
     })

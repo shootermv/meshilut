@@ -73,7 +73,6 @@ export let t = function( translationKey, language ) {
  */
 export let gotoList = function( typeName ) {
   location = '#'+ typeName+'/all';
-  location.reload();
 }
 
 export let successMessage = function( message ) {
@@ -98,7 +97,7 @@ export let showMessage = function() {
   let messagesContainer = document.getElementById('messages');
   
   let messages = JSON.parse(localStorage.getItem('messages'));
-  
+
   messages.forEach(message => {
     if( !document.getElementById('message_'+ message.time.toString()) ) {
       let messageElemnt = document.createElement('div');
@@ -128,7 +127,7 @@ export let errorHandler = function( error ) {
   localStorage.setItem('latest_errors', JSON.stringify(errors) );
 
   if( error.message ) {
-    addMessage( error.message , 'danger');
+    addMessage( error.message+' -- '+(new Error().stack) , 'danger');
   }
   else {
     addMessage( error , 'danger');
