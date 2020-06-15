@@ -561,7 +561,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
                   if ( ['image', 'file'].indexOf(fieldData.type) > -1 ) {
                   }
                   if ( ['wysiwyg','textfield'].indexOf(fieldData.type) > -1 ) {
-                    indexedItem[fieldData.name] = editedItem[fieldData.name].substring(0,250);
+                    indexedItem[fieldData.name] = getCleanText( editedItem[fieldData.name] );
                     return;
                   }
                   else {
@@ -570,7 +570,6 @@ export function contentItemForm ( contentType , editedItem , op ) {
                 });
 
                 indexedItem.href = editedItem.getURL(false);
-                indexedItem.s = getSearchableString();
 
                 fileJson.push(indexedItem);              
               }
@@ -586,15 +585,10 @@ export function contentItemForm ( contentType , editedItem , op ) {
   /**
    * Get Search string - map item words in order to support static search
    */
-  let getSearchableString = function() {
-    let words = typeData.fields            
-                .filter(f => ['wysiwyg','textfield'].indexOf(f.type ) > -1 )
-                .filter(f => editedItem[f.name] )
-                .map(f => editedItem[f.name].replace(/(<([^>]+)>)/ig," "))
-                .map(s => s.replace(/\r?\n|\r/g,' '))
-                .map(s => s.replace(/[^a-zA-Z0-9א-ת ]/g,""))
-                .join(' ');
-    return Array.from(new Set(words.split(' ').filter(s=>s.length>3))).join(' ');
+  let getCleanText = function(value) {
+      return value.replace(/(<([^>]+)>)/ig," ")
+                  .replace(/\r?\n|\r/g,' '))
+                  .replace(/[^a-zA-Z0-9א-ת ]/g,"")
   }
 
   return wrapper;
