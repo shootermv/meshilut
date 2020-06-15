@@ -120,9 +120,11 @@ export function contentItem ( contentType , ItemId ) {
     // TODO: Take laguages from settings...
     return renderPage(this, ['', 'en'])
     .then(files => {
+      let itemToSave = JSON.parse(JSON.stringify(this));
+      delete itemToSave.attachments;
       /*** index.json ***/
       return files.concat([{
-        "content":  JSON.stringify(this),
+        "content":  JSON.stringify(itemToSave),
         "filePath": this.getURL(false)+'/index.json',
         "encoding": "utf-8" 
       }]);
