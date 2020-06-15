@@ -112,5 +112,11 @@ export let showMessage = function() {
 }
 
 export let errorHandler = function( error ) {
-  addMessage( error , 'danger');
+  console.log(error);
+  if( error.message ) {
+    addMessage( error.message , 'danger');
+  }
+  else {
+    addMessage( error , 'danger');
+  }
 }
