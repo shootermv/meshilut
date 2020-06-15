@@ -72,7 +72,10 @@
         .then(jsonItems=>{
             jsonItems.forEach( jsonItem => {
                 let itemDiv = document.createElement('div');
-                itemDiv.className = "card";
+                itemDiv.className = "result-card";
+                let itemImage = document.createElement('img');
+                itemImage.src = jsonItem.im
+                itemDiv.append(itemImage);
                 let itemTitle = document.createElement('h3');
                 itemTitle.innerText = jsonItem.title;
                 itemDiv.append(itemTitle);
