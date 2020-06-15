@@ -6,8 +6,8 @@
         "labelDefinedPlural":"הכתבות",
         "urlPrefix":"post/",
         "fields":[
-            {"name":"body","label":"תוכן","type":"wysiwyg", "placeholder":"גוף הפוסט"},
-            {"name":"image","label":"תמונה","type":"image", "i18n":false}
+            {"name":"image","label":"תמונה","type":"image", "i18n":false},
+            {"name":"body","label":"תוכן","type":"wysiwyg", "placeholder":"גוף הפוסט"}
         ]
     },
     {  
