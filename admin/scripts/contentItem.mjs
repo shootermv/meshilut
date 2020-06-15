@@ -99,16 +99,13 @@ export function contentItem ( contentType , ItemId ) {
     this.attachments[field] = value;
   }
 
-  this.set = ( field, value ) => {
-    let fieldParts = field.split('.');
-    let refferer = this;
-    fieldParts.forEach((fieldName, i ) => {
-      if ( i+1 == fieldParts.length ) {
-        refferer[fieldName] = value;
-        return;
-      }
-      refferer = refferer[fieldName];
-    });
+  this.set = ( field, value , language ) => {
+    if  ( language == null || language == '' ){
+      this[field] = value;
+    }  
+    else {
+      this[language][field] = value;
+    }
     localStorage.setItem( this.type + '/' + this.id , JSON.stringify(this) );
   }
 
@@ -264,15 +261,18 @@ export function contentItemForm ( contentType , editedItem , op ) {
   let siteUrl = appSettings['Site_Url'];
 
   let typeData = utils.getGlobalVariable('contentTypes').find ( ty => ty.name==contentType );
-    // Build node tabs
-    let baseURL = '#' + contentType + '/' + editedItem.id + '/';
-    let links = [{ 'op':'edit', 'label':'עריכה' }];
-    if ( true ) { // TODO: check i18n support
-      links.push({ 'op':'en', 'label':'תרגום' });
-    }
-    links.push({ 'op':'seo', 'label':'SEO' });
+  // Set Fields By OP type
+  let formFields =  JSON.parse(JSON.stringify(typeData.fields));
 
-    switch ( op ) {
+  // Build node tabs
+  let baseURL = '#' + contentType + '/' + editedItem.id + '/';
+  let links = [{ 'op':'edit', 'label':'עריכה' }];
+  if ( true ) { // TODO: check i18n support
+    links.push({ 'op':'en', 'label':'תרגום' });
+  }
+  links.push({ 'op':'seo', 'label':'SEO' });
+  
+  switch ( op ) {
     case 'delete':
       wrapper.innerHTML = `
         <div>
@@ -303,8 +303,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
       case 'en':  
       case 'seo':
         let dataObject = editedItem;
-        // Set Fields By OP type
-        let formFields =  JSON.parse(JSON.stringify(typeData.fields));
+        
         switch( op ) {
           case 'edit':
             // Default fields 
@@ -325,13 +324,21 @@ export function contentItemForm ( contentType , editedItem , op ) {
         }
 
         wrapper.innerHTML = `<h1>עריכת ${typeData.label}</h1>
-        <ul class="nav nav-tabs">
+        <ul id="tabs" class="nav nav-tabs">
           ${ links.map(field=>
             `<li class="nav-item">
               <a class="nav-link ${ field.op==op ? 'active' : '' }" href='${baseURL+field.op}'>${field.label}</a>
             </li>`).join('') }
         </ul>`;
         
+        // validate before change tabs
+        wrapper.querySelectorAll('#tabs li>a').forEach( tabLink => {
+          tabLink.onclick = event=>{
+            let errors = editedItem.validate();
+            showErrors(errors);
+            return Object.keys(errors).length == 0;
+          }
+        });
 
         let form = document.createElement('form');
         
@@ -352,7 +359,6 @@ export function contentItemForm ( contentType , editedItem , op ) {
                 inputField = document.createElement('input');
                 inputField.value = editedItem.id;
                 inputField.onkeyup = v => {
-                    editedItem.set( 'id' , v.target.value );
                     urlPreview.innerText =  editedItem.getURL(true);
                 };
                 fieldDiv.appendChild(inputField);
@@ -416,18 +422,17 @@ export function contentItemForm ( contentType , editedItem , op ) {
 
           /** Handle fields change */
           inputField.onchange = function(event) {
-          
+            let language = '';
+            if ( ['edit','sso'].indexOf( op ) == -1 ) { language = op; }
             switch(field.type){
               case 'wysiwyg':
               case 'textfield':
                 let textValue = typeof event == 'string' ? event :  event.target.value;
-                // fieldName with language prefix
-                let fieldName = ( op == 'edit'?'':(op+'.'))+ field.name;
-                editedItem.set( fieldName , textValue );
+                editedItem.set( field.name , textValue , language );
               break;
               case 'image':
               case 'file':
-                editedItem.set( field.name , editedItem.getURL(false)+ '/'+field.name+'.'+this.files[0].name.split('.').pop());
+                editedItem.set( field.name , editedItem.getURL(false)+ '/'+field.name+'.'+this.files[0].name.split('.').pop(), '');
                 var reader = new FileReader();               
 
                 reader.onload = ( evt => {
@@ -451,26 +456,24 @@ export function contentItemForm ( contentType , editedItem , op ) {
                 
                 reader.readAsDataURL(this.files[0]);
               break;
+              case 'id':
+                console.log(inputField);
+                editedItem.set(field.name, inputField.value , '');
+                console.log(editedItem);
+                location.hash = '#' + editedItem.type + '/'+ editedItem.id;
+              break;
               default: 
-                editedItem.set(field.name, inputField.value);
+                editedItem.set(field.name, inputField.value , language);
               break;
             }
 
-
             // revalidate field
             let errors = editedItem.validate();
-            if( Object.keys(errors).indexOf(field.name) == -1 ) {
-              document.querySelector('#formField_'+field.name+' .alert').style.display = 'none';
-            }
-            else {
-              document.querySelector('#formField_'+field.name+' .alert').innerHTML = errors[field.name];
-              document.querySelector('#formField_'+field.name+' .alert').style.display = 'block';
-            }
-
+            showErrors(errors , field.name );
           }
         });
               
-       
+        
        
         let submitButtons = document.createElement('div');
         let cancelButton = document.createElement('button');
@@ -525,6 +528,21 @@ export function contentItemForm ( contentType , editedItem , op ) {
           submitButtons.disabled = true; 
           event.preventDefault();
         }
+
+        // Show message on all fields if validateField is null
+        // or on single field id validateField is specified 
+        let showErrors = (errorsObject, validateField) =>{
+          formFields.filter( f=> !validateField || f.name == validateField)
+            .forEach( function(field) {
+              if( Object.keys(errorsObject).indexOf(field.name) == -1 ) {
+                document.querySelector('#formField_'+field.name+' .alert').style.display = 'none';
+              }
+              else {
+                document.querySelector('#formField_'+field.name+' .alert').innerHTML = errorsObject[field.name];
+                document.querySelector('#formField_'+field.name+' .alert').style.display = 'block';
+              }
+            });
+        };
       break;
       case 'rebuild':
         return getRepositoryFiles();
