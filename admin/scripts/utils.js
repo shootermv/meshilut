@@ -113,6 +113,7 @@ export let showMessage = function() {
 
 export let errorHandler = function( error ) {
   console.log(error);
+  localStorage.setItem('latest_error', JSON.stringify(error) );
   if( error.message ) {
     addMessage( error.message , 'danger');
   }
