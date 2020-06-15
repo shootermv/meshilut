@@ -587,7 +587,7 @@ export function contentItemForm ( contentType , editedItem , op ) {
    */
   let getCleanText = function(value) {
       return value.replace(/(<([^>]+)>)/ig," ")
-                  .replace(/\r?\n|\r/g,' '))
+                  .replace(/\r?\n|\r/g,' ')
                   .replace(/[^a-zA-Z0-9א-ת ]/g,"")
   }
 
