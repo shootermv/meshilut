@@ -113,7 +113,15 @@ export let showMessage = function() {
 
 export let errorHandler = function( error ) {
   console.log(error);
-  localStorage.setItem('latest_error', JSON.stringify(error) );
+
+  let errors = [];
+  if ( localStorage.getItem('latest_errors' ) {
+    errors = JSON.parse(localStorage.getItem('latest_errors'));
+  }
+ // errors = errors.filter(e=>e.time > )
+  errors.push({ 'time':Date.now(), 'data':JSON.stringify(error) })
+  localStorage.setItem('latest_errors', JSON.stringify(errors) );
+
   if( error.message ) {
     addMessage( error.message , 'danger');
   }
