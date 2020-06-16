@@ -13,8 +13,8 @@ import * as utils from './utils.js';
 export function contentItem ( contentType , ItemId ) {
 
   this.id = ItemId;
-  this.type= contentType;
-  this.isNew = ItemId == 'new';
+  this.type = contentType;
+  this.isNew = ItemId === 'new';
   this.attachments = {};
   
   this.seo = {};
@@ -31,9 +31,7 @@ export function contentItem ( contentType , ItemId ) {
   if ( this.isNew ) {
     let APIconnect = utils.getGlobalVariable('gitApi');
     APIconnect.getFile ('/search/'+contentType+'.json')
-              .then(response => {
-                return JSON.parse(response)
-              })
+              .then(response => response.json())
               .then( fileJson => {
                 existsItemsIds = fileJson.map(i=>i.id);
               });
