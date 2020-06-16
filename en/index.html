@@ -144,18 +144,30 @@
  </section>
 
 
-<section class="articles-grid">
-    <div class="grid">
-        <article style="background-image:url(http://meshilut.org/wp-content/uploads/2019/12/800x392.20191217T114309-300x147.jpg)"><a href="/post/1">blaa blaa</a></article>
-        <article style="background-image:url(http://meshilut.org/wp-content/uploads/2019/12/800x392.20191217T114309-300x147.jpg)"><a href="https://www.google.com">blaa blaa</a></article>
-        <article style="background-image:url(http://meshilut.org/wp-content/uploads/2019/12/WhatsApp-Image-2019-12-04-at-13.54.06-213x300.jpeg)"><a href="https://www.google.com">blaa blaa</a></article>
-        <article style="background-image:url(http://meshilut.org/wp-content/uploads/2019/01/עוד-זאב-לב-300x184.jpg)"><a href="https://www.google.com">blaa blaa</a></article>
-        <article style="background-image:url(http://meshilut.org/wp-content/uploads/2019/07/תמונה-יהודה-אוגוסט-2018-217x300.jpg)"><a href="https://www.google.com">blaa blaa</a></article>
-        <article style="background-image:url(http://meshilut.org/wp-content/uploads/2019/11/WhatsApp-Image-2019-11-25-at-12.58.21-300x300.jpeg)"><a href="https://www.google.com">blaa blaa</a></article>
-        <article style="background-image:url(http://meshilut.org/wp-content/uploads/2019/10/עו_ד_שי_ניצן-300x286.jpg)"><a href="https://www.google.com">blaa blaa</a></article>
-        <article style="background-image:url(http://meshilut.org/wp-content/uploads/2019/08/התנועה-בועדת-הבחירות-300x157.jpeg)"><a href="https://www.google.com">blaa blaa</a></article>
-        <article style="background-image:url(http://meshilut.org/wp-content/uploads/2019/07/WhatsApp-Image-2019-07-01-at-13.15.32-300x200.jpeg)"><a href="https://www.google.com">blaa blaa</a></article>   
+ <section class="articles-grid">
+    <h2 class="elementor-heading-title elementor-size-default">Latest Articles  &gt;&gt;</h2>
+    <div id='lastPosts' class="grid">
     </div>
+    <script>
+        let container = document.getElementById('lastPosts');
+        fetch('search/post.json')
+        .then(res=>res.json())
+        .then(jsonItems=>{
+            jsonItems
+                .reverse()
+                .slice( 0, 9 )
+                .forEach( jsonItem => {
+                    let article = document.createElement('article');
+                    article.style.backgroundImage = 'url('+(jsonItem.image?jsonItem.image:'assets/images/post_default.jpeg')+')';
+                    let link = document.createElement('a');
+                    link.href = jsonItem.href;
+                    link.innerText = jsonItem.title;;
+                    article.append(link);
+                    container.append(article);
+                
+            });                
+        });    
+    </script>
 </section>
 
 <section class="quote">  
