@@ -8,9 +8,12 @@
                 let itemImage = document.createElement('img');
                 itemImage.src = jsonItem.image?jsonItem.image:'assets/images/post_default.jpeg'
                 itemDiv.append(itemImage);
+                let headerLink = document.createElement('a');
+                headerLink.href = jsonItem.href;
+                headerLink.innerText = jsonItem.title;
                 let itemContent = document.createElement('div');
                 let itemTitle = document.createElement('h3');
-                itemTitle.innerText = jsonItem.title;
+                itemTitle.innerHTML = headerLink;//jsonItem.title;
                 itemContent.append(itemTitle);
                 let itemTeaser = document.createElement('span');
                 itemTeaser.innerText = jsonItem.body.substring(0, 250);
